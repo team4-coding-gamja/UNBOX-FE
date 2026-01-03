@@ -23,3 +23,21 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Dependency folders
+node_modules/
+
+# IDE settings (지금 빼고 싶어 하는 폴더)
+.vscode/
+.idea/
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# Build output
+dist/
+build/
+
+# Env files
+.env*.local
