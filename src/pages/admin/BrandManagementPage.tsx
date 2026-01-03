@@ -1,0 +1,270 @@
+import { useState, useEffect } from 'react';
+import { adminBrandsApi } from '@/lib/api';
+import { Brand } from '@/types';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { toast } from 'sonner';
+import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+
+const brandSchema = z.object({
+  name: z.string().min(1, '영문명을 입력해주세요'),
+  nameKo: z.string().min(1, '한글명을 입력해주세요'),
+});
+
+type BrandFormData = z.infer<typeof brandSchema>;
+
+export function BrandManagementPage() {
+  const [brands, setBrands] = useState<Brand[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedBrand, setSelectedBrand] = useState<Brand | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<BrandFormData>({
+    resolver: zodResolver(brandSchema),
+  });
+
+  useEffect(() => {
+    fetchBrands();
+  }, []);
+
+  const fetchBrands = async () => {
+    try {
+      const response = await adminBrandsApi.getAll();
+      const data = response.data?.data || response.data || [];
+      setBrands(Array.isArray(data) ? data : []);
+    } catch (error) {
+      toast.error('브랜드 목록을 불러오는데 실패했습니다');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const openCreateDialog = () => {
+    setSelectedBrand(null);
+    reset({ name: '', nameKo: '' });
+    setDialogOpen(true);
+  };
+
+  const openEditDialog = (brand: Brand) => {
+    setSelectedBrand(brand);
+    reset({ name: brand.name, nameKo: brand.nameKo });
+    setDialogOpen(true);
+  };
+
+  const onSubmit = async (data: BrandFormData) => {
+    setIsSubmitting(true);
+    try {
+      if (selectedBrand) {
+        await adminBrandsApi.update(selectedBrand.id, data);
+        toast.success('브랜드가 수정되었습니다');
+      } else {
+        await adminBrandsApi.create(data);
+        toast.success('브랜드가 등록되었습니다');
+      }
+      setDialogOpen(false);
+      reset();
+      fetchBrands();
+    } catch (error: any) {
+      const message = error.response?.data?.message || '브랜드 저장에 실패했습니다';
+      toast.error(message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!selectedBrand) return;
+
+    setIsSubmitting(true);
+    try {
+      await adminBrandsApi.delete(selectedBrand.id);
+      toast.success('브랜드가 삭제되었습니다');
+      setDeleteDialogOpen(false);
+      setSelectedBrand(null);
+      fetchBrands();
+    } catch (error: any) {
+      const message = error.response?.data?.message || '브랜드 삭제에 실패했습니다';
+      toast.error(message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div>
+        <div className="flex items-center justify-between mb-8">
+          <Skeleton className="h-8 w-40" />
+          <Skeleton className="h-10 w-32" />
+        </div>
+        <div className="space-y-4">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Skeleton key={i} className="h-16 rounded-lg" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-2xl font-bold">브랜드 관리</h1>
+        <Button onClick={openCreateDialog}>
+          <Plus className="h-4 w-4 mr-2" />
+          브랜드 추가
+        </Button>
+      </div>
+
+      {brands.length > 0 ? (
+        <div className="bg-background rounded-lg border border-border overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>한글명</TableHead>
+                <TableHead>영문명</TableHead>
+                <TableHead className="w-24"></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {brands.map((brand) => (
+                <TableRow key={brand.id}>
+                  <TableCell className="font-medium">{brand.nameKo}</TableCell>
+                  <TableCell>{brand.name}</TableCell>
+                  <TableCell>
+                    <div className="flex gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => openEditDialog(brand)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => {
+                          setSelectedBrand(brand);
+                          setDeleteDialogOpen(true);
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      ) : (
+        <div className="text-center py-16 bg-background rounded-lg border border-border">
+          <p className="text-muted-foreground">등록된 브랜드가 없습니다</p>
+        </div>
+      )}
+
+      {/* Create/Edit Dialog */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{selectedBrand ? '브랜드 수정' : '브랜드 추가'}</DialogTitle>
+          </DialogHeader>
+
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="nameKo">한글명</Label>
+              <Input
+                id="nameKo"
+                {...register('nameKo')}
+                placeholder="예: 나이키"
+              />
+              {errors.nameKo && (
+                <p className="text-xs text-destructive">{errors.nameKo.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="name">영문명</Label>
+              <Input
+                id="name"
+                {...register('name')}
+                placeholder="예: Nike"
+              />
+              {errors.name && (
+                <p className="text-xs text-destructive">{errors.name.message}</p>
+              )}
+            </div>
+
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
+                취소
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? '저장 중...' : '저장'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>브랜드 삭제</AlertDialogTitle>
+            <AlertDialogDescription>
+              {selectedBrand?.nameKo} 브랜드를 삭제하시겠습니까?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>취소</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={isSubmitting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isSubmitting ? '삭제 중...' : '삭제'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+}
