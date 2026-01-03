@@ -2,6 +2,7 @@ export interface Brand {
   id: string;
   name: string;
   nameKo: string;
+  imageUrl?: string;
 }
 
 export interface ProductOption {
@@ -9,6 +10,8 @@ export interface ProductOption {
   size: string;
   lowestPrice?: number;
   lowestBidId?: string;
+  productId?: string;
+  stockQuantity?: number;
 }
 
 export interface Product {
@@ -16,10 +19,11 @@ export interface Product {
   name: string;
   nameKo: string;
   modelNumber: string;
-  releaseDate: string;
-  releasePrice: number;
+  releaseDate?: string;
+  releasePrice?: number;
   imageUrl: string;
-  brand: Brand;
+  brand?: Brand;
+  brandId?: string;
   lowestPrice?: number;
   options?: ProductOption[];
 }

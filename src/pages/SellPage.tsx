@@ -1,16 +1,43 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Check } from 'lucide-react';
+import { ArrowLeft, Check, Search, AlertCircle } from 'lucide-react';
 import { brandsApi, productsApi, sellingBidsApi } from '@/lib/api';
 import { Brand, Product, ProductOption } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
+
 type Step = 'brand' | 'product' | 'size' | 'price' | 'complete';
+
+// MOCK DATA FOR UI TESTING
+const MOCK_BRANDS: Brand[] = [
+  { id: '1', name: 'Nike', nameKo: '나이키', imageUrl: '' },
+  { id: '2', name: 'Adidas', nameKo: '아디다스', imageUrl: '' },
+  { id: '3', name: 'New Balance', nameKo: '뉴발란스', imageUrl: '' },
+  { id: '4', name: 'Stussy', nameKo: '스투시', imageUrl: '' },
+  { id: '5', name: 'Iab Studio', nameKo: '아이앱 스튜디오', imageUrl: '' },
+];
+
+const MOCK_PRODUCTS: Product[] = [
+  { id: '101', brandId: '1', name: 'Air Force 1 Low 07 White', nameKo: '에어포스 1 로우 07 화이트', modelNumber: 'CW2288-111', imageUrl: 'https://dummyimage.com/600x600/f5f5f5/000000&text=Air+Force+1' },
+  { id: '102', brandId: '1', name: 'Dunk Low Retro Black', nameKo: '덩크 로우 레트로 블랙', modelNumber: 'DD1391-100', imageUrl: 'https://dummyimage.com/600x600/f5f5f5/000000&text=Dunk+Low' },
+  { id: '201', brandId: '2', name: 'Samba OG Cloud White', nameKo: '삼바 OG 클라우드 화이트', modelNumber: 'B75806', imageUrl: 'https://dummyimage.com/600x600/f5f5f5/000000&text=Samba' },
+  { id: '301', brandId: '3', name: '993 Made in USA Grey', nameKo: '993 메이드 인 USA 그레이', modelNumber: 'MR993GL', imageUrl: 'https://dummyimage.com/600x600/f5f5f5/000000&text=NB+993' },
+  { id: '401', brandId: '4', name: 'Basic Stussy Hoodie', nameKo: '베이직 스투시 후드', modelNumber: 'STU-BQ', imageUrl: 'https://dummyimage.com/600x600/f5f5f5/000000&text=Stussy' },
+];
+
+const MOCK_OPTIONS: ProductOption[] = [
+    { id: 'opt1', productId: '101', size: '230', stockQuantity: 99 },
+    { id: 'opt2', productId: '101', size: '240', stockQuantity: 99 },
+    { id: 'opt3', productId: '101', size: '250', stockQuantity: 99 },
+    { id: 'opt4', productId: '101', size: '260', stockQuantity: 99 },
+    { id: 'opt5', productId: '101', size: '270', stockQuantity: 99 },
+    { id: 'opt6', productId: '101', size: '280', stockQuantity: 99 },
+];
 
 export function SellPage() {
   const navigate = useNavigate();
@@ -26,6 +53,7 @@ export function SellPage() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedOption, setSelectedOption] = useState<ProductOption | null>(null);
   const [price, setPrice] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   
   const [isLoading, setIsLoading] = useState(false);
 
@@ -37,65 +65,69 @@ export function SellPage() {
     }
   }, [preselectedProductId]);
 
+  useEffect(() => {
+    setSearchQuery(''); // Reset search when step changes
+  }, [step]);
+
   const fetchBrands = async () => {
     setIsLoading(true);
     try {
-      const response = await brandsApi.getAll();
-      setBrands(response.data?.data || response.data || []);
+      // Mock Data (Fallback)
+      setTimeout(() => {
+          setBrands(MOCK_BRANDS);
+          setIsLoading(false);
+      }, 300);
     } catch (error) {
-      toast.error('브랜드 목록을 불러오는데 실패했습니다');
-    } finally {
-      setIsLoading(false);
-    }
+       // toast.error('브랜드 목록을 불러오는데 실패했습니다');
+       setIsLoading(false);
+    } 
   };
 
   const fetchProducts = async (brandId: string) => {
     setIsLoading(true);
     try {
-      const response = await productsApi.getAll({ brandId });
-      const data = response.data?.data?.content || response.data?.content || response.data || [];
-      setProducts(Array.isArray(data) ? data : []);
+       // Mock Data
+       setTimeout(() => {
+         const filtered = MOCK_PRODUCTS.filter(p => p.brandId === brandId);
+         setProducts(filtered);
+         setIsLoading(false);
+       }, 300);
     } catch (error) {
-      toast.error('상품 목록을 불러오는데 실패했습니다');
-    } finally {
+      // toast.error('상품 목록을 불러오는데 실패했습니다');
       setIsLoading(false);
-    }
+    } 
   };
 
   const fetchProductAndOptions = async (productId: string) => {
     setIsLoading(true);
     try {
-      const [productRes, optionsRes] = await Promise.all([
-        productsApi.getById(productId),
-        productsApi.getOptions(productId),
-      ]);
-      
-      const product = productRes.data?.data || productRes.data;
-      setSelectedProduct(product);
-      
-      const optionData = optionsRes.data?.data || optionsRes.data || [];
-      setOptions(Array.isArray(optionData) ? optionData : []);
-      
-      setStep('size');
+      // Mock Data
+      setTimeout(() => {
+          const product = MOCK_PRODUCTS.find(p => p.id === productId);
+          if(product) setSelectedProduct(product);
+          setOptions(MOCK_OPTIONS);
+          setStep('size');
+          setIsLoading(false);
+      }, 500);
     } catch (error) {
       toast.error('상품 정보를 불러오는데 실패했습니다');
       navigate('/sell');
-    } finally {
       setIsLoading(false);
-    }
+    } 
   };
 
   const fetchOptions = async (productId: string) => {
     setIsLoading(true);
     try {
-      const response = await productsApi.getOptions(productId);
-      const optionData = response.data?.data || response.data || [];
-      setOptions(Array.isArray(optionData) ? optionData : []);
+      // Mock Data
+      setTimeout(() => {
+          setOptions(MOCK_OPTIONS);
+          setIsLoading(false);
+      }, 300);
     } catch (error) {
       toast.error('옵션 목록을 불러오는데 실패했습니다');
-    } finally {
       setIsLoading(false);
-    }
+    } 
   };
 
   const handleBrandSelect = (brand: Brand) => {
@@ -129,16 +161,26 @@ export function SellPage() {
 
     setIsLoading(true);
     try {
+      // Mock Submit
+      setTimeout(() => {
+          setIsLoading(false);
+          setStep('complete');
+      }, 1000);
+
+      /*
       await sellingBidsApi.create({
         productOptionId: selectedOption.id,
         price: priceNum,
       });
       setStep('complete');
+      */
     } catch (error: any) {
+      /*
       const message = error.response?.data?.message || '판매 등록에 실패했습니다';
       toast.error(message);
+      */
     } finally {
-      setIsLoading(false);
+      // setIsLoading(false);
     }
   };
 
@@ -164,91 +206,105 @@ export function SellPage() {
     return num ? parseInt(num, 10).toLocaleString('ko-KR') : '';
   };
 
-  const steps = [
-    { key: 'brand', label: '브랜드' },
-    { key: 'product', label: '상품' },
-    { key: 'size', label: '사이즈' },
-    { key: 'price', label: '가격' },
-  ];
-
-  const currentStepIndex = steps.findIndex((s) => s.key === step);
+  const renderProgressBar = () => {
+    const steps = ['brand', 'product', 'size', 'price'];
+    const currentIdx = steps.indexOf(step) === -1 ? 4 : steps.indexOf(step);
+    
+    return (
+      <div className="flex gap-1 mb-8">
+        {steps.map((s, idx) => (
+          <div 
+            key={s} 
+            className={cn(
+              "h-1 flex-1 rounded-full transition-colors duration-300", 
+              idx <= currentIdx ? "bg-black" : "bg-gray-200"
+            )} 
+          />
+        ))}
+      </div>
+    );
+  };
 
   if (step === 'complete') {
     return (
-      <div className="container mx-auto px-4 py-16 text-center">
-        <div className="w-16 h-16 bg-foreground rounded-full flex items-center justify-center mx-auto mb-6">
-          <Check className="h-8 w-8 text-background" />
+      <div className="container mx-auto px-4 py-24 text-center max-w-md">
+        <div className="w-20 h-20 bg-black rounded-full flex items-center justify-center mx-auto mb-8 animate-in zoom-in spin-in-12 duration-500">
+          <Check className="h-10 w-10 text-white" />
         </div>
-        <h1 className="text-2xl font-bold mb-2">판매 입찰 등록 완료</h1>
-        <p className="text-muted-foreground mb-8">
-          구매자가 나타나면 알림을 보내드립니다
+        <h1 className="text-3xl font-bold mb-4">판매 입찰 등록 완료</h1>
+        <p className="text-muted-foreground mb-10 text-lg">
+          거래가 체결되면 알림을 보내드립니다.<br/>
+          마이페이지에서 내역을 확인하세요.
         </p>
-        <div className="flex gap-3 justify-center">
-          <Button variant="outline" onClick={() => navigate('/mypage/sales')}>
+        <div className="flex flex-col gap-3">
+          <Button size="lg" className="w-full text-lg h-14" onClick={() => navigate('/mypage/sales')}>
             판매 내역 보기
           </Button>
-          <Button onClick={() => navigate('/')}>홈으로</Button>
+          <Button variant="outline" size="lg" className="w-full text-lg h-14" onClick={() => navigate('/')}>
+            홈으로 돌아가기
+          </Button>
         </div>
       </div>
     );
   }
 
+  // Filter lists based on search
+  const filteredBrands = brands.filter(b => 
+    (b.nameKo || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
+    (b.name || '').toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredProducts = products.filter(p => 
+    (p.nameKo || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
+    (p.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (p.modelNumber || '').toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
-    <div className="container mx-auto px-4 py-8 max-w-2xl">
-      {/* Header */}
-      <div className="flex items-center gap-4 mb-8">
-        <Button variant="ghost" size="icon" onClick={handleBack}>
-          <ArrowLeft className="h-5 w-5" />
+    <div className="container mx-auto px-4 py-8 max-w-xl min-h-[80vh]">
+      {/* Top Navigation */}
+      <div className="flex items-center justify-between mb-8">
+        <Button variant="ghost" size="icon" className="-ml-3" onClick={handleBack} disabled={step === 'brand' && !preselectedProductId}>
+          {step !== 'brand' && <ArrowLeft className="h-6 w-6" />}
         </Button>
-        <h1 className="text-xl font-bold">판매하기</h1>
+        <h1 className="text-lg font-bold">
+           {step === 'brand' && '브랜드 선택'}
+           {step === 'product' && '상품 선택'}
+           {step === 'size' && '사이즈 선택'}
+           {step === 'price' && '가격 입력'}
+        </h1>
+        <div className="w-10" /> {/* Spacer */}
       </div>
 
-      {/* Progress */}
-      <div className="flex items-center gap-2 mb-8">
-        {steps.map((s, i) => (
-          <div key={s.key} className="flex items-center">
-            <div
-              className={cn(
-                'w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium',
-                i <= currentStepIndex
-                  ? 'bg-foreground text-background'
-                  : 'bg-muted text-muted-foreground'
-              )}
-            >
-              {i + 1}
-            </div>
-            {i < steps.length - 1 && (
-              <div
-                className={cn(
-                  'w-8 h-0.5 mx-1',
-                  i < currentStepIndex ? 'bg-foreground' : 'bg-muted'
-                )}
-              />
-            )}
-          </div>
-        ))}
-      </div>
+      {renderProgressBar()}
 
-      {/* Step Content */}
+      {/* Brand Selection */}
       {step === 'brand' && (
-        <div>
-          <h2 className="text-lg font-semibold mb-4">브랜드 선택</h2>
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="relative">
+             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5" />
+             <Input 
+              placeholder="브랜드명 검색" 
+              className="pl-10 h-12 text-base rounded-xl bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-black"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+
           {isLoading ? (
             <div className="grid grid-cols-2 gap-3">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <Skeleton key={i} className="h-14 rounded-lg" />
-              ))}
+              {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-16 rounded-xl" />)}
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-3">
-              {brands.map((brand) => (
+              {filteredBrands.map((brand) => (
                 <button
                   key={brand.id}
                   onClick={() => handleBrandSelect(brand)}
-                  className="p-4 text-left border border-border rounded-lg hover:border-foreground transition-colors"
+                  className="flex flex-col items-center justify-center p-6 border border-border rounded-xl hover:border-black hover:bg-muted/30 transition-all text-center gap-2 group"
                 >
-                  <p className="font-medium">{brand.nameKo || brand.name}</p>
-                  <p className="text-sm text-muted-foreground">{brand.name}</p>
+                  <span className="font-bold text-lg group-hover:scale-105 transition-transform">{brand.name}</span>
+                  <span className="text-xs text-muted-foreground">{brand.nameKo}</span>
                 </button>
               ))}
             </div>
@@ -256,141 +312,143 @@ export function SellPage() {
         </div>
       )}
 
+      {/* Product Selection */}
       {step === 'product' && (
-        <div>
-          <h2 className="text-lg font-semibold mb-4">상품 선택</h2>
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+           <div className="relative">
+             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5" />
+             <Input 
+              placeholder="상품명, 모델번호 검색" 
+              className="pl-10 h-12 text-base rounded-xl bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-black"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+
           {isLoading ? (
+             <div className="space-y-4">
+               {[...Array(4)].map((_, i) => (
+                 <div key={i} className="flex gap-4">
+                   <Skeleton className="w-20 h-20 rounded-xl" />
+                   <div className="flex-1 space-y-2 py-2">
+                     <Skeleton className="h-4 w-3/4" />
+                     <Skeleton className="h-4 w-1/2" />
+                   </div>
+                 </div>
+               ))}
+             </div>
+          ) : filteredProducts.length > 0 ? (
             <div className="space-y-3">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <Skeleton key={i} className="h-24 rounded-lg" />
-              ))}
-            </div>
-          ) : products.length > 0 ? (
-            <div className="space-y-3">
-              {products.map((product) => (
+              {filteredProducts.map((product) => (
                 <button
                   key={product.id}
                   onClick={() => handleProductSelect(product)}
-                  className="w-full flex items-center gap-4 p-4 border border-border rounded-lg hover:border-foreground transition-colors"
+                  className="w-full flex items-center gap-4 p-4 border border-border rounded-2xl hover:border-black transition-all text-left bg-background"
                 >
-                  <div className="w-20 h-20 bg-muted rounded-lg overflow-hidden shrink-0">
+                  <div className="w-20 h-20 bg-muted rounded-xl p-1 shrink-0">
                     <img
                       src={product.imageUrl || '/placeholder.svg'}
                       alt={product.name}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-contain mix-blend-multiply"
                     />
                   </div>
-                  <div className="text-left">
-                    <p className="font-medium">{product.nameKo || product.name}</p>
-                    <p className="text-sm text-muted-foreground">{product.modelNumber}</p>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-[15px] truncate">{product.name}</p>
+                    <p className="text-sm text-muted-foreground truncate mb-1">{product.nameKo}</p>
+                    <p className="text-xs text-muted-foreground bg-muted inline-block px-1.5 py-0.5 rounded-sm">{product.modelNumber}</p>
                   </div>
                 </button>
               ))}
             </div>
           ) : (
-            <p className="text-center py-8 text-muted-foreground">상품이 없습니다</p>
+            <div className="text-center py-20 text-muted-foreground flex flex-col items-center gap-2">
+              <AlertCircle className="w-10 h-10 mb-2 opacity-50" />
+              <p>검색 결과가 없습니다</p>
+            </div>
           )}
         </div>
       )}
 
-      {step === 'size' && (
-        <div>
-          {selectedProduct && (
-            <div className="flex items-center gap-4 p-4 bg-muted rounded-lg mb-6">
-              <div className="w-16 h-16 bg-background rounded-lg overflow-hidden shrink-0">
-                <img
-                  src={selectedProduct.imageUrl || '/placeholder.svg'}
-                  alt={selectedProduct.name}
-                  className="w-full h-full object-cover"
-                />
+      {/* Size Selection */}
+      {step === 'size' && selectedProduct && (
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+           {/* Selected Product Summary Layer */}
+           <div className="flex items-center gap-4 p-4 bg-muted/30 border border-border rounded-2xl">
+              <img
+                src={selectedProduct.imageUrl || '/placeholder.svg'}
+                alt={selectedProduct.name}
+                className="w-16 h-16 object-contain rounded-lg"
+              />
+              <div className="flex-1 min-w-0">
+                <p className="font-bold text-sm truncate">{selectedProduct.name}</p>
+                <p className="text-xs text-muted-foreground truncate">{selectedProduct.modelNumber}</p>
               </div>
-              <div>
-                <p className="font-medium">{selectedProduct.nameKo || selectedProduct.name}</p>
-                <p className="text-sm text-muted-foreground">{selectedProduct.modelNumber}</p>
-              </div>
-            </div>
-          )}
+           </div>
 
-          <h2 className="text-lg font-semibold mb-4">사이즈 선택</h2>
-          {isLoading ? (
-            <div className="grid grid-cols-4 gap-2">
-              {Array.from({ length: 8 }).map((_, i) => (
-                <Skeleton key={i} className="h-14 rounded-lg" />
-              ))}
-            </div>
-          ) : options.length > 0 ? (
-            <div className="grid grid-cols-4 gap-2">
-              {options.map((option) => (
-                <button
-                  key={option.id}
-                  onClick={() => handleOptionSelect(option)}
-                  className={cn(
-                    'p-3 text-center border rounded-lg transition-colors',
-                    selectedOption?.id === option.id
-                      ? 'border-foreground bg-foreground text-background'
-                      : 'border-border hover:border-foreground'
-                  )}
-                >
-                  <p className="font-medium">{option.size}</p>
-                </button>
-              ))}
-            </div>
-          ) : (
-            <p className="text-center py-8 text-muted-foreground">사이즈 옵션이 없습니다</p>
-          )}
-        </div>
-      )}
-
-      {step === 'price' && (
-        <div>
-          {selectedProduct && (
-            <div className="flex items-center gap-4 p-4 bg-muted rounded-lg mb-6">
-              <div className="w-16 h-16 bg-background rounded-lg overflow-hidden shrink-0">
-                <img
-                  src={selectedProduct.imageUrl || '/placeholder.svg'}
-                  alt={selectedProduct.name}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div>
-                <p className="font-medium">{selectedProduct.nameKo || selectedProduct.name}</p>
-                <p className="text-sm text-muted-foreground">
-                  {selectedProduct.modelNumber} · {selectedOption?.size}
-                </p>
-              </div>
-            </div>
-          )}
-
-          <h2 className="text-lg font-semibold mb-4">판매 희망가</h2>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="price">가격</Label>
-              <div className="relative">
-                <Input
-                  id="price"
-                  type="text"
-                  value={price}
-                  onChange={(e) => setPrice(formatPrice(e.target.value))}
-                  placeholder="희망 판매가 입력"
-                  className="text-right pr-8"
-                />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                  원
-                </span>
-              </div>
-            </div>
-
-            <Button
-              className="w-full"
-              size="lg"
-              onClick={handleSubmit}
-              disabled={isLoading || !price}
-            >
-              {isLoading ? '등록 중...' : '판매 입찰 등록'}
-            </Button>
+          <div className="grid grid-cols-3 gap-3">
+            {options.map((option) => (
+              <button
+                key={option.id}
+                onClick={() => handleOptionSelect(option)}
+                className={cn(
+                  'h-14 rounded-xl border font-bold text-lg hover:border-black transition-all',
+                  selectedOption?.id === option.id
+                    ? 'border-black bg-black text-white'
+                    : 'border-border'
+                )}
+              >
+                {option.size}
+              </button>
+            ))}
           </div>
+        </div>
+      )}
+
+      {/* Price Input */}
+      {step === 'price' && selectedProduct && (
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+           {/* Selected Product & Option Summary */}
+           <div className="flex items-center gap-4 p-4 bg-muted/30 border border-border rounded-2xl">
+              <img
+                src={selectedProduct.imageUrl || '/placeholder.svg'}
+                alt={selectedProduct.name}
+                className="w-16 h-16 object-contain rounded-lg"
+              />
+              <div className="flex-1 min-w-0">
+                 <div className="flex items-center gap-2 mb-1">
+                   <p className="font-bold text-sm truncate">{selectedProduct.name}</p>
+                   <span className="px-2 py-0.5 bg-black text-white text-[10px] font-bold rounded-sm whitespace-nowrap">{selectedOption?.size}</span>
+                 </div>
+                <p className="text-xs text-muted-foreground truncate">{selectedProduct.modelNumber}</p>
+              </div>
+           </div>
+
+           <div className="py-10">
+             <label className="block text-xs font-bold text-muted-foreground mb-4">판매 희망가</label>
+             <div className="relative">
+               <input 
+                 type="text" 
+                 value={price}
+                 onChange={(e) => setPrice(formatPrice(e.target.value))}
+                 placeholder="0"
+                 className="w-full text-4xl md:text-5xl font-bold border-b-2 border-black/10 focus:border-black outline-none py-4 bg-transparent placeholder:text-muted/30 text-right pr-12 transition-colors"
+                 autoFocus
+               />
+               <span className="absolute right-0 top-1/2 -translate-y-1/2 text-2xl font-bold">원</span>
+             </div>
+             <p className="text-right text-xs text-muted-foreground mt-2">수수료 0원 (프로모션)</p>
+           </div>
+
+           <div className="fixed bottom-0 left-0 right-0 p-4 border-t bg-background md:static md:border-0 md:p-0">
+             <div className="max-w-xl mx-auto">
+               <Button size="lg" className="w-full h-14 text-lg font-bold rounded-xl" onClick={handleSubmit}>
+                 판매 입찰 등록하기
+               </Button>
+             </div>
+           </div>
         </div>
       )}
     </div>
   );
 }
+

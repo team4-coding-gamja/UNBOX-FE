@@ -1,47 +1,99 @@
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Link } from 'react-router-dom';
-import { Package, ShoppingBag, Heart, ChevronRight } from 'lucide-react';
+import { Package, ShoppingBag, Heart, ChevronRight, Settings } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { ordersApi, sellingBidsApi, wishlistApi } from '@/lib/api';
 
 export function MyPageHome() {
   const { user } = useAuth();
 
-  const quickLinks = [
-    { path: '/mypage/orders', label: '구매 내역', icon: Package, description: '주문 및 배송 상태 확인' },
-    { path: '/mypage/sales', label: '판매 내역', icon: ShoppingBag, description: '판매 입찰 및 거래 내역' },
-    { path: '/mypage/wishlist', label: '위시리스트', icon: Heart, description: '관심 상품 목록' },
-  ];
+  // Stats State (Default: Mock Data)
+  const [stats, setStats] = useState([
+    { label: '구매 내역', value: 0, unit: '건', path: '/mypage/orders' },
+    { label: '판매 내역', value: 0, unit: '건', path: '/mypage/sales' },
+    { label: '관심 상품', value: 0, unit: '개', path: '/mypage/wishlist' },
+  ]);
+
+  /* 
+  // TODO: [Backend Integration] Enable this useEffect to fetch real dashboard stats
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const [ordersRes, salesRes, wishlistRes] = await Promise.all([
+          ordersApi.getMine({ size: 1 }), // Just need count
+          sellingBidsApi.getMine({ size: 1 }),
+          wishlistApi.getAll()
+        ]);
+        
+        // Adjust response structure based on actual API
+        setStats([
+            { label: '구매 내역', value: ordersRes.data?.data?.totalElements || 0, unit: '건', path: '/mypage/orders' },
+            { label: '판매 내역', value: salesRes.data?.data?.totalElements || 0, unit: '건', path: '/mypage/sales' },
+            { label: '관심 상품', value: wishlistRes.data?.data?.length || 0, unit: '개', path: '/mypage/wishlist' },
+        ]);
+      } catch (e) {
+        console.error('Failed to fetch dashboard stats', e);
+      }
+    };
+    if (user) fetchStats();
+  }, [user]);
+  */
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-8">마이페이지</h1>
-
-      {/* User Info */}
-      <div className="p-6 bg-muted rounded-2xl mb-8">
-        <p className="text-lg font-bold mb-1">{user?.nickname}님</p>
-        <p className="text-sm text-muted-foreground">{user?.email}</p>
-      </div>
-
-      {/* Quick Links */}
-      <div className="space-y-3">
-        {quickLinks.map((item) => (
-          <Link
-            key={item.path}
-            to={item.path}
-            className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-muted transition-colors"
-          >
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center">
-                <item.icon className="h-5 w-5" />
-              </div>
-              <div>
-                <p className="font-medium">{item.label}</p>
-                <p className="text-sm text-muted-foreground">{item.description}</p>
-              </div>
+    <div className="space-y-10">
+      {/* Profile Section */}
+      <section className="bg-muted/30 border border-border rounded-3xl p-8 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="flex items-center gap-6">
+          <div className="w-24 h-24 rounded-full bg-muted flex items-center justify-center text-3xl font-bold text-muted-foreground border-4 border-background shadow-sm">
+             {user?.nickname?.[0]?.toUpperCase()}
+          </div>
+          <div className="text-center md:text-left">
+            <h2 className="text-2xl font-bold tracking-tight mb-1">{user?.nickname}</h2>
+            <p className="text-sm text-muted-foreground mb-3">{user?.email}</p>
+            <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
+              일반 회원
             </div>
-            <ChevronRight className="h-5 w-5 text-muted-foreground" />
+          </div>
+        </div>
+        <div className="flex gap-3">
+            <Link to="/mypage/settings">
+                <Button variant="outline" className="rounded-full">
+                    <Settings className="w-4 h-4 mr-2" /> 프로필 관리
+                </Button>
+            </Link>
+        </div>
+      </section>
+
+      {/* Dashboard Stats */}
+      <section className="grid grid-cols-3 gap-4">
+        {stats.map((stat, i) => (
+          <Link 
+            key={i} 
+            to={stat.path}
+            className="group block bg-background border border-border rounded-2xl p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+          >
+            <p className="text-sm text-muted-foreground mb-2 group-hover:text-primary transition-colors">{stat.label}</p>
+            <div className="flex items-end gap-1">
+                <span className="text-3xl font-bold">{stat.value}</span>
+                <span className="text-sm mb-1.5">{stat.unit}</span>
+            </div>
           </Link>
         ))}
-      </div>
+      </section>
+
+      {/* Recent Activity or Banner (Mock) */}
+      <section className="bg-primary/5 border border-primary/10 rounded-2xl p-6">
+          <div className="flex items-center justify-between">
+              <div>
+                  <h3 className="font-bold text-lg mb-1">보유 포인트 0P</h3>
+                  <p className="text-sm text-muted-foreground">적립된 포인트가 없습니다.</p>
+              </div>
+              <Button variant="ghost" size="sm" className="hidden">
+                  내역 보기 <ChevronRight className="w-4 h-4 ml-1"/>
+              </Button>
+          </div>
+      </section>
     </div>
   );
 }
