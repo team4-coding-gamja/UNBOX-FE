@@ -1,15 +1,15 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, User, Heart, Menu, X } from 'lucide-react';
+import { Search, Menu, X, Heart, User, Tag } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/button.tsx';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu.tsx';
+} from '@/components/ui/dropdown-menu';
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -30,18 +30,14 @@ export function Header() {
             UNBOX
           </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-8">
-            <Link to="/" className="text-sm font-medium hover:text-muted-foreground transition-colors">
-              홈
-            </Link>
-            <Link to="/sell" className="text-sm font-medium hover:text-muted-foreground transition-colors">
-              판매하기
-            </Link>
-          </nav>
-
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center gap-4">
+             <Link to="/sell">
+              <Button variant="ghost" size="icon" className="mr-2">
+                <Tag className="h-5 w-5" />
+              </Button>
+            </Link>
+
             {isAuthenticated ? (
               <>
                 <Link to="/mypage/wishlist">
@@ -105,34 +101,28 @@ export function Header() {
           <div className="md:hidden py-4 border-t border-border">
             <nav className="flex flex-col gap-4">
               <Link
-                to="/"
-                className="text-sm font-medium"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                홈
-              </Link>
-              <Link
                 to="/sell"
                 className="text-sm font-medium"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 판매하기
               </Link>
+              
               {isAuthenticated ? (
                 <>
-                  <Link
-                    to="/mypage/wishlist"
-                    className="text-sm font-medium"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    위시리스트
-                  </Link>
                   <Link
                     to="/mypage"
                     className="text-sm font-medium"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     마이페이지
+                  </Link>
+                  <Link
+                    to="/mypage/wishlist"
+                    className="text-sm font-medium"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    관심상품
                   </Link>
                   <button
                     onClick={() => {
@@ -145,10 +135,9 @@ export function Header() {
                   </button>
                 </>
               ) : (
-                <div className="flex gap-2">
+                <div className="grid grid-cols-2 gap-4">
                   <Button
                     variant="outline"
-                    size="sm"
                     onClick={() => {
                       navigate('/auth/login');
                       setIsMobileMenuOpen(false);
@@ -157,7 +146,6 @@ export function Header() {
                     로그인
                   </Button>
                   <Button
-                    size="sm"
                     onClick={() => {
                       navigate('/auth/signup');
                       setIsMobileMenuOpen(false);
