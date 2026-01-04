@@ -19,35 +19,40 @@ export function ProductCard({ product, isWishlisted, onToggleWishlist }: Product
     <div className="group relative">
       <Link to={`/products/${product.id}`} className="block">
         {/* Image */}
-        <div className="aspect-square bg-muted rounded-lg overflow-hidden mb-3">
+        <div className="aspect-square bg-[#f4f4f4] rounded-[10px] overflow-hidden mb-3 md:rounded-[12px] relative">
           <img
             src={product.imageUrl || '/placeholder.svg'}
             alt={product.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 mix-blend-multiply"
           />
         </div>
 
-        {/* Brand */}
-        <p className="text-xs font-bold text-muted-foreground mb-1">
-          {product.brand?.nameKo || product.brand?.name}
-        </p>
+        {/* Content */}
+        <div className="space-y-1">
+            {/* Brand */}
+            <p className="text-sm font-bold text-black truncate">
+            {product.brand?.nameKo || product.brand?.name}
+            </p>
 
-        {/* Name */}
-        <h3 className="text-sm font-medium line-clamp-2 mb-1 group-hover:underline">
-          {product.nameKo || product.name}
-        </h3>
+            {/* Name */}
+            <h3 className="text-sm text-gray-800 line-clamp-2 leading-tight">
+            {product.nameKo || product.name}
+            </h3>
 
-        {/* English Name */}
-        <p className="text-xs text-muted-foreground line-clamp-1 mb-2">
-          {product.name}
-        </p>
+            {/* English Name (optional, minimal) */}
+            {product.name && product.name !== product.nameKo && (
+                 <p className="text-xs text-gray-400 line-clamp-1 truncate">
+                    {product.name}
+                 </p>
+            )}
 
-        {/* Price */}
-        <div>
-          <p className="text-xs text-muted-foreground">즉시 구매가</p>
-          <p className="text-base font-bold">
-            {product.lowestPrice ? `${formatPrice(product.lowestPrice)}원` : '-'}
-          </p>
+            {/* Price */}
+            <div className="pt-2">
+                 <p className="text-[15px] font-bold text-black">
+                     {product.lowestPrice ? `${formatPrice(product.lowestPrice)}원` : '-'}
+                 </p>
+                 <p className="text-[11px] text-gray-400">즉시 구매가</p>
+            </div>
         </div>
       </Link>
 
@@ -56,7 +61,7 @@ export function ProductCard({ product, isWishlisted, onToggleWishlist }: Product
         <Button
           variant="ghost"
           size="icon"
-          className="absolute top-2 right-2 h-8 w-8 bg-background/80 backdrop-blur-sm hover:bg-background"
+          className="absolute top-2 right-2 h-8 w-8 hover:bg-transparent"
           onClick={(e) => {
             e.preventDefault();
             onToggleWishlist(product.id);
@@ -64,8 +69,8 @@ export function ProductCard({ product, isWishlisted, onToggleWishlist }: Product
         >
           <Heart
             className={cn(
-              'h-4 w-4 transition-colors',
-              isWishlisted ? 'fill-destructive text-destructive' : 'text-muted-foreground'
+              'h-5 w-5 transition-colors',
+              isWishlisted ? 'fill-black text-black' : 'text-gray-400'
             )}
           />
         </Button>

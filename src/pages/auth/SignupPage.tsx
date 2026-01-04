@@ -78,96 +78,108 @@ export function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-sm">
+    <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-white animate-in fade-in duration-500">
+      <div className="w-full max-w-[400px]">
         {/* Logo */}
-        <div className="text-center mb-8">
-          <Link to="/" className="text-3xl font-bold tracking-tighter">
+        <div className="text-center mb-12">
+          <Link to="/" className="text-4xl font-black tracking-tighter italic block mb-2">
             UNBOX
           </Link>
+          <p className="text-gray-400 text-sm">리미티드 에디션 거래의 시작</p>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="email">이메일 주소</Label>
+            <Label htmlFor="email" className="text-sm font-bold text-gray-900">이메일 주소</Label>
             <Input
               id="email"
               type="email"
-              placeholder="example@email.com"
+              placeholder="예) unbox@unbox.com"
               {...register('email')}
               disabled={isLoading}
+              className="h-12 px-4 bg-white border-gray-200 focus-visible:ring-1 focus-visible:ring-black focus-visible:border-black transition-all rounded-lg placeholder:text-gray-300"
             />
             {errors.email && (
-              <p className="text-xs text-destructive">{errors.email.message}</p>
+              <p className="text-xs text-red-500 font-medium mt-1">{errors.email.message}</p>
             )}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">비밀번호</Label>
+            <Label htmlFor="password" className="text-sm font-bold text-gray-900">비밀번호</Label>
             <Input
               id="password"
               type="password"
               placeholder="영문, 숫자, 특수문자 포함 8자 이상"
               {...register('password')}
               disabled={isLoading}
+              className="h-12 px-4 bg-white border-gray-200 focus-visible:ring-1 focus-visible:ring-black focus-visible:border-black transition-all rounded-lg placeholder:text-gray-300"
             />
             {errors.password && (
-              <p className="text-xs text-destructive">{errors.password.message}</p>
+              <p className="text-xs text-red-500 font-medium mt-1">{errors.password.message}</p>
             )}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword">비밀번호 확인</Label>
+            <Label htmlFor="confirmPassword" className="text-sm font-bold text-gray-900">비밀번호 확인</Label>
             <Input
               id="confirmPassword"
               type="password"
-              placeholder="비밀번호 확인"
+              placeholder="비밀번호를 한번 더 입력해주세요"
               {...register('confirmPassword')}
               disabled={isLoading}
+              className="h-12 px-4 bg-white border-gray-200 focus-visible:ring-1 focus-visible:ring-black focus-visible:border-black transition-all rounded-lg placeholder:text-gray-300"
             />
             {errors.confirmPassword && (
-              <p className="text-xs text-destructive">{errors.confirmPassword.message}</p>
+              <p className="text-xs text-red-500 font-medium mt-1">{errors.confirmPassword.message}</p>
             )}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="phone">전화번호</Label>
+            <Label htmlFor="phone" className="text-sm font-bold text-gray-900">전화번호</Label>
             <Input
               id="phone"
               type="text"
-              placeholder="01012345678"
+              placeholder="예) 01012345678"
               {...register('phone')}
               disabled={isLoading}
+              className="h-12 px-4 bg-white border-gray-200 focus-visible:ring-1 focus-visible:ring-black focus-visible:border-black transition-all rounded-lg placeholder:text-gray-300"
             />
             {errors.phone && (
-              <p className="text-xs text-destructive">{errors.phone.message}</p>
+              <p className="text-xs text-red-500 font-medium mt-1">{errors.phone.message}</p>
             )}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="nickname">닉네임</Label>
+            <Label htmlFor="nickname" className="text-sm font-bold text-gray-900">닉네임</Label>
             <Input
               id="nickname"
               type="text"
-              placeholder="닉네임"
+              placeholder="사용하실 닉네임을 입력해주세요"
               {...register('nickname')}
               disabled={isLoading}
+              className="h-12 px-4 bg-white border-gray-200 focus-visible:ring-1 focus-visible:ring-black focus-visible:border-black transition-all rounded-lg placeholder:text-gray-300"
             />
             {errors.nickname && (
-              <p className="text-xs text-destructive">{errors.nickname.message}</p>
+              <p className="text-xs text-red-500 font-medium mt-1">{errors.nickname.message}</p>
             )}
           </div>
 
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? '가입 중...' : '회원가입'}
-          </Button>
+          <div className="pt-4">
+            <Button 
+                type="submit" 
+                className="w-full h-12 bg-black hover:bg-gray-800 text-white font-bold text-base rounded-lg transition-colors" 
+                disabled={isLoading}
+            >
+              {isLoading ? '가입 중...' : '회원가입'}
+            </Button>
+          </div>
         </form>
 
         {/* Links */}
-        <div className="mt-6 text-center text-sm">
-          <span className="text-muted-foreground">이미 회원이신가요?</span>{' '}
-          <Link to="/auth/login" className="font-medium hover:underline">
+        <div className="mt-8 text-center text-sm">
+          <span className="text-gray-400">이미 회원이신가요?</span>{' '}
+          <Link to="/auth/login" className="font-medium text-black hover:underline ml-1">
             로그인
           </Link>
         </div>

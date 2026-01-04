@@ -39,7 +39,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
-import { Plus, Pencil, Trash2, Settings } from 'lucide-react';
+import { Plus, Pencil, Trash2, Settings, Package, X } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -146,10 +146,10 @@ export function ProductManagementPage() {
       };
 
       if (selectedProduct) {
-        await adminProductsApi.update(selectedProduct.id, payload);
+        await adminProductsApi.update(selectedProduct.id, payload as any);
         toast.success('상품이 수정되었습니다');
       } else {
-        await adminProductsApi.create(payload);
+        await adminProductsApi.create(payload as any);
         toast.success('상품이 등록되었습니다');
       }
       setDialogOpen(false);
@@ -189,7 +189,7 @@ export function ProductManagementPage() {
 
     setIsSubmitting(true);
     try {
-      await adminProductsApi.createOption(selectedProduct.id, { size: newSize.trim() });
+      await adminProductsApi.createOption(selectedProduct.id, { size: newSize.trim() } as any);
       toast.success('사이즈가 추가되었습니다');
       setNewSize('');
       // Refresh options
@@ -228,14 +228,17 @@ export function ProductManagementPage() {
 
   if (isLoading) {
     return (
-      <div>
-        <div className="flex items-center justify-between mb-8">
-          <Skeleton className="h-8 w-40" />
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+             <Skeleton className="h-8 w-40 mb-2" />
+             <Skeleton className="h-4 w-60" />
+          </div>
           <Skeleton className="h-10 w-32" />
         </div>
         <div className="space-y-4">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} className="h-20 rounded-lg" />
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Skeleton key={i} className="h-24 rounded-xl" />
           ))}
         </div>
       </div>
@@ -243,33 +246,36 @@ export function ProductManagementPage() {
   }
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-bold">상품 관리</h1>
-        <Button onClick={openCreateDialog}>
+    <div className='space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500'>
+      <div className="flex items-center justify-between bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+        <div>
+           <h1 className="text-2xl font-bold tracking-tight text-gray-900">상품 관리</h1>
+           <p className="text-gray-500 mt-1 text-sm">판매 상품을 등록하고 옵션(사이즈)을 관리합니다.</p>
+        </div>
+        <Button onClick={openCreateDialog} className="bg-black hover:bg-gray-800 text-white rounded-full px-6">
           <Plus className="h-4 w-4 mr-2" />
           상품 추가
         </Button>
       </div>
 
-      {products.length > 0 ? (
-        <div className="bg-background rounded-lg border border-border overflow-hidden">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        {products.length > 0 ? (
           <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-20">이미지</TableHead>
-                <TableHead>상품명</TableHead>
-                <TableHead>브랜드</TableHead>
-                <TableHead>모델번호</TableHead>
-                <TableHead>발매가</TableHead>
+            <TableHeader className="bg-gray-50/50">
+              <TableRow className="border-gray-100 hover:bg-transparent">
+                <TableHead className="py-4 pl-6 text-xs font-semibold uppercase text-gray-500 w-[100px]">Image</TableHead>
+                <TableHead className="py-4 text-xs font-semibold uppercase text-gray-500">Product Info</TableHead>
+                <TableHead className="py-4 text-xs font-semibold uppercase text-gray-500">Brand</TableHead>
+                <TableHead className="py-4 text-xs font-semibold uppercase text-gray-500">Model No.</TableHead>
+                <TableHead className="py-4 text-xs font-semibold uppercase text-gray-500">Price</TableHead>
                 <TableHead className="w-32"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {products.map((product) => (
-                <TableRow key={product.id}>
-                  <TableCell>
-                    <div className="w-12 h-12 bg-muted rounded overflow-hidden">
+                <TableRow key={product.id} className="border-gray-50 hover:bg-gray-50/50 transition-colors">
+                  <TableCell className="pl-6 py-4">
+                    <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
                       <img
                         src={product.imageUrl || '/placeholder.svg'}
                         alt={product.name}
@@ -278,38 +284,47 @@ export function ProductManagementPage() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <p className="font-medium">{product.nameKo}</p>
-                    <p className="text-xs text-muted-foreground">{product.name}</p>
+                    <div className="flex flex-col">
+                        <span className="font-semibold text-gray-900">{product.nameKo}</span>
+                        <span className="text-xs text-gray-500 mt-0.5">{product.name}</span>
+                    </div>
                   </TableCell>
-                  <TableCell>{product.brand?.nameKo}</TableCell>
-                  <TableCell>{product.modelNumber}</TableCell>
-                  <TableCell>{formatPrice(product.releasePrice)}원</TableCell>
                   <TableCell>
-                    <div className="flex gap-1">
+                    <Badge variant="secondary" className="bg-gray-100 text-gray-700 hover:bg-gray-200">
+                        {product.brand?.nameKo}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="font-mono text-sm text-gray-600">{product.modelNumber}</TableCell>
+                  <TableCell className="font-medium">{formatPrice(product.releasePrice)}원</TableCell>
+                  <TableCell>
+                    <div className="flex gap-1 justify-end pr-4">
                       <Button
                         variant="ghost"
                         size="icon"
+                        className="h-8 w-8 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-full"
                         onClick={() => openOptionDialog(product)}
                         title="사이즈 관리"
                       >
-                        <Settings className="h-4 w-4" />
+                        <Settings className="h-3.5 w-3.5" />
                       </Button>
                       <Button
-                        variant="ghost"
+                         variant="ghost"
                         size="icon"
+                        className="h-8 w-8 text-gray-400 hover:text-black hover:bg-gray-100 rounded-full"
                         onClick={() => openEditDialog(product)}
                       >
-                        <Pencil className="h-4 w-4" />
+                        <Pencil className="h-3.5 w-3.5" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="icon"
+                        className="h-8 w-8 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full"
                         onClick={() => {
                           setSelectedProduct(product);
                           setDeleteDialogOpen(true);
                         }}
                       >
-                        <Trash2 className="h-4 w-4 text-destructive" />
+                        <Trash2 className="h-3.5 w-3.5" />
                       </Button>
                     </div>
                   </TableCell>
@@ -317,12 +332,19 @@ export function ProductManagementPage() {
               ))}
             </TableBody>
           </Table>
-        </div>
-      ) : (
-        <div className="text-center py-16 bg-background rounded-lg border border-border">
-          <p className="text-muted-foreground">등록된 상품이 없습니다</p>
-        </div>
-      )}
+        ) : (
+          <div className="flex flex-col items-center justify-center py-24 text-center">
+             <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                 <Package className="h-8 w-8 text-gray-400" />
+             </div>
+             <h3 className="text-lg font-semibold text-gray-900">등록된 상품이 없습니다</h3>
+             <p className="text-gray-500 mt-1 mb-6 max-w-sm">새로운 상품을 등록하고 판매를 시작하세요.</p>
+             <Button onClick={openCreateDialog} variant="outline">
+                첫 상품 등록하기
+             </Button>
+          </div>
+        )}
+      </div>
 
       {/* Create/Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -411,11 +433,11 @@ export function ProductManagementPage() {
               )}
             </div>
 
-            <DialogFooter>
+            <DialogFooter className="mt-4">
               <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
                 취소
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button type="submit" disabled={isSubmitting} className="bg-black text-white hover:bg-gray-800">
                 {isSubmitting ? '저장 중...' : '저장'}
               </Button>
             </DialogFooter>
@@ -431,7 +453,7 @@ export function ProductManagementPage() {
           </DialogHeader>
 
           {selectedProduct && (
-            <div className="text-sm text-muted-foreground mb-4">
+            <div className="text-sm font-medium text-gray-900 mb-4 bg-gray-50 p-3 rounded-lg">
               {selectedProduct.nameKo}
             </div>
           )}
@@ -442,34 +464,36 @@ export function ProductManagementPage() {
               onChange={(e) => setNewSize(e.target.value)}
               placeholder="새 사이즈 (예: 270)"
             />
-            <Button onClick={handleAddOption} disabled={isSubmitting}>
+            <Button onClick={handleAddOption} disabled={isSubmitting} className="bg-black text-white px-6">
               추가
             </Button>
           </div>
 
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 min-h-[100px] content-start">
             {productOptions.map((option) => (
               <Badge
                 key={option.id}
                 variant="secondary"
-                className="flex items-center gap-1"
+                className="flex items-center gap-1.5 px-3 py-1 text-sm bg-white border border-gray-200 shadow-sm hover:bg-gray-50"
               >
                 {option.size}
                 <button
                   onClick={() => handleDeleteOption(option.id)}
-                  className="ml-1 hover:text-destructive"
+                  className="ml-1 text-gray-400 hover:text-red-500 rounded-full p-0.5"
                 >
-                  ×
+                  <X className="h-3 w-3" />
                 </button>
               </Badge>
             ))}
             {productOptions.length === 0 && (
-              <p className="text-sm text-muted-foreground">등록된 사이즈가 없습니다</p>
+              <div className="w-full text-center py-8 text-gray-400 text-sm">
+                  등록된 사이즈가 없습니다.
+              </div>
             )}
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setOptionDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setOptionDialogOpen(false)} className="w-full">
               닫기
             </Button>
           </DialogFooter>
@@ -482,7 +506,8 @@ export function ProductManagementPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>상품 삭제</AlertDialogTitle>
             <AlertDialogDescription>
-              {selectedProduct?.nameKo} 상품을 삭제하시겠습니까?
+              <span className="font-semibold text-black">{selectedProduct?.nameKo}</span> 상품을 삭제하시겠습니까?
+              <br />삭제된 상품은 복구할 수 없습니다.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -490,7 +515,7 @@ export function ProductManagementPage() {
             <AlertDialogAction
               onClick={handleDelete}
               disabled={isSubmitting}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="bg-red-600 text-white hover:bg-red-700"
             >
               {isSubmitting ? '삭제 중...' : '삭제'}
             </AlertDialogAction>

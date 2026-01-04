@@ -180,8 +180,8 @@ export function SellPage() {
           <div 
             key={s} 
             className={cn(
-              "h-1 flex-1 rounded-full transition-colors duration-300", 
-              idx <= currentIdx ? "bg-black" : "bg-gray-200"
+              "h-1 flex-1 transition-colors duration-300", 
+              idx <= currentIdx ? "bg-black" : "bg-gray-100"
             )} 
           />
         ))}
@@ -191,20 +191,19 @@ export function SellPage() {
 
   if (step === 'complete') {
     return (
-      <div className="container mx-auto px-4 py-24 text-center max-w-md">
-        <div className="w-20 h-20 bg-black rounded-full flex items-center justify-center mx-auto mb-8 animate-in zoom-in spin-in-12 duration-500">
+      <div className="container mx-auto px-4 py-32 text-center max-w-sm">
+        <div className="w-24 h-24 bg-black rounded-full flex items-center justify-center mx-auto mb-10 animate-in zoom-in spin-in-12 duration-500 shadow-xl">
           <Check className="h-10 w-10 text-white" />
         </div>
-        <h1 className="text-3xl font-bold mb-4">판매 입찰 등록 완료</h1>
-        <p className="text-muted-foreground mb-10 text-lg">
-          거래가 체결되면 알림을 보내드립니다.<br/>
-          마이페이지에서 내역을 확인하세요.
+        <h1 className="text-3xl font-black italic tracking-tighter mb-4">COMPLETED</h1>
+        <p className="text-gray-500 mb-12 text-lg font-medium">
+          판매 입찰이 성공적으로 등록되었습니다.
         </p>
         <div className="flex flex-col gap-3">
-          <Button size="lg" className="w-full text-lg h-14" onClick={() => navigate('/mypage/sales')}>
+          <Button size="lg" className="w-full text-lg font-bold h-14 bg-black text-white hover:bg-gray-800" onClick={() => navigate('/mypage/sales')}>
             판매 내역 보기
           </Button>
-          <Button variant="outline" size="lg" className="w-full text-lg h-14" onClick={() => navigate('/')}>
+          <Button variant="outline" size="lg" className="w-full text-lg font-bold h-14 border-gray-200" onClick={() => navigate('/')}>
             홈으로 돌아가기
           </Button>
         </div>
@@ -225,13 +224,13 @@ export function SellPage() {
   );
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-xl min-h-[80vh]">
+    <div className="container mx-auto px-4 py-12 max-w-xl min-h-[80vh] bg-white">
       {/* Top Navigation */}
-      <div className="flex items-center justify-between mb-8">
-        <Button variant="ghost" size="icon" className="-ml-3" onClick={handleBack} disabled={step === 'brand' && !preselectedProductId}>
+      <div className="flex items-center justify-between mb-10">
+        <Button variant="ghost" size="icon" className="-ml-3 hover:bg-transparent" onClick={handleBack} disabled={step === 'brand' && !preselectedProductId}>
           {step !== 'brand' && <ArrowLeft className="h-6 w-6" />}
         </Button>
-        <h1 className="text-lg font-bold">
+        <h1 className="text-xl font-black tracking-tight">
            {step === 'brand' && '브랜드 선택'}
            {step === 'product' && '상품 선택'}
            {step === 'size' && '사이즈 선택'}
@@ -246,10 +245,10 @@ export function SellPage() {
       {step === 'brand' && (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div className="relative">
-             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5" />
+             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
              <Input 
               placeholder="브랜드명 검색" 
-              className="pl-10 h-12 text-base rounded-xl bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-black"
+              className="pl-12 h-14 text-lg rounded-xl bg-gray-50 border-0 focus-visible:ring-1 focus-visible:ring-black placeholder:text-gray-400 font-medium"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -257,7 +256,7 @@ export function SellPage() {
 
           {isLoading ? (
             <div className="grid grid-cols-2 gap-3">
-              {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-16 rounded-xl" />)}
+              {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-20 rounded-xl" />)}
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-3">
@@ -265,10 +264,10 @@ export function SellPage() {
                 <button
                   key={brand.id}
                   onClick={() => handleBrandSelect(brand)}
-                  className="flex flex-col items-center justify-center p-6 border border-border rounded-xl hover:border-black hover:bg-muted/30 transition-all text-center gap-2 group"
+                  className="flex flex-col items-center justify-center p-6 border border-gray-100 rounded-xl hover:border-black hover:shadow-lg transition-all text-center gap-1 group bg-white"
                 >
                   <span className="font-bold text-lg group-hover:scale-105 transition-transform">{brand.name}</span>
-                  <span className="text-xs text-muted-foreground">{brand.nameKo}</span>
+                  <span className="text-xs text-gray-400 font-medium">{brand.nameKo}</span>
                 </button>
               ))}
             </div>
@@ -280,10 +279,10 @@ export function SellPage() {
       {step === 'product' && (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
            <div className="relative">
-             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5" />
+             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
              <Input 
-              placeholder="상품명, 모델번호 검색" 
-              className="pl-10 h-12 text-base rounded-xl bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-black"
+              placeholder="모델명, 모델번호 등" 
+              className="pl-12 h-14 text-lg rounded-xl bg-gray-50 border-0 focus-visible:ring-1 focus-visible:ring-black placeholder:text-gray-400 font-medium"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -307,27 +306,27 @@ export function SellPage() {
                 <button
                   key={product.id}
                   onClick={() => handleProductSelect(product)}
-                  className="w-full flex items-center gap-4 p-4 border border-border rounded-2xl hover:border-black transition-all text-left bg-background"
+                  className="w-full flex items-center gap-5 p-4 border border-gray-100 rounded-2xl hover:border-black transition-all text-left bg-white hover:shadow-md"
                 >
-                  <div className="w-20 h-20 bg-muted rounded-xl p-1 shrink-0">
+                  <div className="w-20 h-20 bg-gray-50 rounded-xl p-1 shrink-0 overflow-hidden">
                     <img
                       src={product.imageUrl || '/placeholder.svg'}
                       alt={product.name}
-                      className="w-full h-full object-contain mix-blend-multiply"
+                      className="w-full h-full object-cover mix-blend-multiply"
                     />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-bold text-[15px] truncate">{product.name}</p>
-                    <p className="text-sm text-muted-foreground truncate mb-1">{product.nameKo}</p>
-                    <p className="text-xs text-muted-foreground bg-muted inline-block px-1.5 py-0.5 rounded-sm">{product.modelNumber}</p>
+                    <p className="font-bold text-base truncate text-black mb-0.5">{product.name}</p>
+                    <p className="text-sm text-gray-500 truncate mb-1">{product.nameKo}</p>
+                    <p className="text-xs text-gray-400 font-bold">{product.modelNumber}</p>
                   </div>
                 </button>
               ))}
             </div>
           ) : (
-            <div className="text-center py-20 text-muted-foreground flex flex-col items-center gap-2">
-              <AlertCircle className="w-10 h-10 mb-2 opacity-50" />
-              <p>검색 결과가 없습니다</p>
+            <div className="text-center py-20 text-gray-300 flex flex-col items-center gap-2">
+              <AlertCircle className="w-10 h-10 mb-2" />
+              <p className="font-medium">검색 결과가 없습니다</p>
             </div>
           )}
         </div>
@@ -337,15 +336,15 @@ export function SellPage() {
       {step === 'size' && selectedProduct && (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
            {/* Selected Product Summary Layer */}
-           <div className="flex items-center gap-4 p-4 bg-muted/30 border border-border rounded-2xl">
+           <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl border border-transparent">
               <img
                 src={selectedProduct.imageUrl || '/placeholder.svg'}
                 alt={selectedProduct.name}
-                className="w-16 h-16 object-contain rounded-lg"
+                className="w-16 h-16 object-cover rounded-lg mix-blend-multiply"
               />
               <div className="flex-1 min-w-0">
-                <p className="font-bold text-sm truncate">{selectedProduct.name}</p>
-                <p className="text-xs text-muted-foreground truncate">{selectedProduct.modelNumber}</p>
+                <p className="font-bold text-sm truncate text-black">{selectedProduct.name}</p>
+                <p className="text-xs text-gray-400 truncate font-medium">{selectedProduct.modelNumber}</p>
               </div>
            </div>
 
@@ -355,10 +354,10 @@ export function SellPage() {
                 key={option.id}
                 onClick={() => handleOptionSelect(option)}
                 className={cn(
-                  'h-14 rounded-xl border font-bold text-lg hover:border-black transition-all',
+                  'h-14 rounded-xl border-2 font-bold text-lg transition-all',
                   selectedOption?.id === option.id
                     ? 'border-black bg-black text-white'
-                    : 'border-border'
+                    : 'border-gray-100 hover:border-black text-black'
                 )}
               >
                 {option.size}
@@ -372,40 +371,40 @@ export function SellPage() {
       {step === 'price' && selectedProduct && (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
            {/* Selected Product & Option Summary */}
-           <div className="flex items-center gap-4 p-4 bg-muted/30 border border-border rounded-2xl">
+           <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl">
               <img
                 src={selectedProduct.imageUrl || '/placeholder.svg'}
                 alt={selectedProduct.name}
-                className="w-16 h-16 object-contain rounded-lg"
+                className="w-16 h-16 object-cover rounded-lg mix-blend-multiply"
               />
               <div className="flex-1 min-w-0">
                  <div className="flex items-center gap-2 mb-1">
-                   <p className="font-bold text-sm truncate">{selectedProduct.name}</p>
+                   <p className="font-bold text-sm truncate text-black">{selectedProduct.name}</p>
                    <span className="px-2 py-0.5 bg-black text-white text-[10px] font-bold rounded-sm whitespace-nowrap">{selectedOption?.size}</span>
                  </div>
-                <p className="text-xs text-muted-foreground truncate">{selectedProduct.modelNumber}</p>
+                <p className="text-xs text-gray-400 truncate font-medium">{selectedProduct.modelNumber}</p>
               </div>
            </div>
 
            <div className="py-10">
-             <label className="block text-xs font-bold text-muted-foreground mb-4">판매 희망가</label>
+             <label className="block text-sm font-bold text-black mb-6">판매 희망가 입력</label>
              <div className="relative">
                <input 
                  type="text" 
                  value={price}
                  onChange={(e) => setPrice(formatPrice(e.target.value))}
                  placeholder="0"
-                 className="w-full text-4xl md:text-5xl font-bold border-b-2 border-black/10 focus:border-black outline-none py-4 bg-transparent placeholder:text-muted/30 text-right pr-12 transition-colors"
+                 className="w-full text-5xl md:text-6xl font-black border-b-2 border-gray-200 focus:border-black outline-none py-4 bg-transparent placeholder:text-gray-200 text-right pr-16 transition-colors"
                  autoFocus
                />
-               <span className="absolute right-0 top-1/2 -translate-y-1/2 text-2xl font-bold">원</span>
+               <span className="absolute right-0 top-1/2 -translate-y-1/2 text-3xl font-bold text-black">원</span>
              </div>
-             <p className="text-right text-xs text-muted-foreground mt-2">수수료 0원 (프로모션)</p>
+             <p className="text-right text-xs text-red-500 font-medium mt-4">⚠️ 즉시 판매가는 현재 지원하지 않습니다 (입찰만 가능)</p>
            </div>
 
-           <div className="fixed bottom-0 left-0 right-0 p-4 border-t bg-background md:static md:border-0 md:p-0">
+           <div className="fixed bottom-0 left-0 right-0 p-4 border-t bg-white md:static md:border-0 md:p-0 md:bg-transparent">
              <div className="max-w-xl mx-auto">
-               <Button size="lg" className="w-full h-14 text-lg font-bold rounded-xl" onClick={handleSubmit}>
+               <Button size="lg" className="w-full h-14 text-lg font-bold rounded-xl bg-[#41b979] hover:bg-[#3ba86e] text-white" onClick={handleSubmit}>
                  판매 입찰 등록하기
                </Button>
              </div>

@@ -31,7 +31,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const isAuthenticated = !!user;
   const isAdmin = localStorage.getItem('userType') === 'admin';
-  const adminRole = user?.adminRole || null;
+  const adminRole = user?.adminRole || user?.role || null;
+
+  if (isAdmin) {
+      console.log('Current Admin User State:', user);
+      console.log('Detected Admin Role:', adminRole);
+  }
 
   useEffect(() => {
     const initAuth = async () => {

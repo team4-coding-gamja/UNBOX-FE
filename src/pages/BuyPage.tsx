@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Check } from 'lucide-react';
+import { ArrowLeft, Check, Lock } from 'lucide-react';
 import { productsApi, ordersApi } from '@/lib/api';
 import { Product, ProductOption } from '@/types';
 import { Button } from '@/components/ui/button';
@@ -154,7 +154,7 @@ export function BuyPage() {
 
   if (isLoading && !product) {
     return (
-      <div className="container mx-auto px-4 py-8 max-w-2xl">
+      <div className="container mx-auto px-4 py-8 max-w-2xl bg-white min-h-screen">
         <Skeleton className="h-8 w-32 mb-8" />
         <Skeleton className="h-24 w-full rounded-lg mb-6" />
         <Skeleton className="h-48 w-full rounded-lg" />
@@ -164,55 +164,64 @@ export function BuyPage() {
 
   if (step === 'complete') {
     return (
-      <div className="container mx-auto px-4 py-16 text-center">
-        <div className="w-16 h-16 bg-foreground rounded-full flex items-center justify-center mx-auto mb-6">
-          <Check className="h-8 w-8 text-background" />
+      <div className="container mx-auto px-4 py-32 text-center max-w-sm">
+        <div className="w-24 h-24 bg-black rounded-full flex items-center justify-center mx-auto mb-10 animate-in zoom-in spin-in-12 duration-500 shadow-xl">
+          <Check className="h-10 w-10 text-white" />
         </div>
-        <h1 className="text-2xl font-bold mb-2">주문 완료</h1>
-        <p className="text-muted-foreground mb-8">
-          결제가 완료되었습니다. 판매자가 상품을 발송하면 알림을 보내드립니다.
+        <h1 className="text-3xl font-black italic tracking-tighter mb-4">ORDER COMPLETED</h1>
+        <p className="text-gray-500 mb-12 text-lg font-medium">
+          주문이 성공적으로 완료되었습니다.<br/>
+          판매자가 상품을 발송하면 알림을 보내드립니다.
         </p>
-        <div className="flex gap-3 justify-center">
-          <Button variant="outline" onClick={() => navigate('/mypage/orders')}>
+        <div className="flex flex-col gap-3">
+          <Button size="lg" className="w-full text-lg font-bold h-14 bg-black text-white hover:bg-gray-800" onClick={() => navigate('/mypage/orders')}>
             주문 내역 보기
           </Button>
-          <Button onClick={() => navigate('/')}>홈으로</Button>
+          <Button variant="outline" size="lg" className="w-full text-lg font-bold h-14 border-gray-200" onClick={() => navigate('/')}>
+            홈으로 돌아가기
+          </Button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-2xl">
+    <div className="container mx-auto px-4 py-8 max-w-2xl min-h-screen bg-white">
       {/* Header */}
       <div className="flex items-center gap-4 mb-8">
-        <Button variant="ghost" size="icon" onClick={handleBack}>
-          <ArrowLeft className="h-5 w-5" />
+        <Button variant="ghost" size="icon" onClick={handleBack} className="-ml-3 hover:bg-transparent">
+          <ArrowLeft className="h-6 w-6" />
         </Button>
-        <h1 className="text-xl font-bold">즉시 구매</h1>
+        <h1 className="text-xl font-black tracking-tight">
+           {step === 'size' && '사이즈 선택'}
+           {step === 'shipping' && '배송 정보 입력'}
+           {step === 'payment' && '결제 및 주문 확인'}
+        </h1>
       </div>
 
       {/* Product Info */}
       {product && (
-        <div className="flex items-center gap-4 p-4 bg-muted rounded-lg mb-6">
-          <div className="w-20 h-20 bg-background rounded-lg overflow-hidden shrink-0">
+        <div className="flex items-center gap-5 p-5 bg-gray-50 rounded-2xl mb-8 border border-transparent">
+          <div className="w-20 h-20 bg-background rounded-xl overflow-hidden shrink-0 border border-gray-100">
             <img
               src={product.imageUrl || '/placeholder.svg'}
               alt={product.name}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover mix-blend-multiply"
             />
           </div>
           <div className="flex-1">
-            <p className="font-medium">{product.nameKo || product.name}</p>
-            <p className="text-sm text-muted-foreground">{product.modelNumber}</p>
+            <p className="font-bold text-black mb-1">{product.nameKo || product.name}</p>
+            <p className="text-xs text-gray-500 font-medium mb-2">{product.modelNumber}</p>
             {selectedOption && (
-              <p className="text-sm font-medium mt-1">사이즈: {selectedOption.size}</p>
+               <div className="inline-flex items-center px-2 py-0.5 rounded-sm bg-black text-white text-xs font-bold">
+                  {selectedOption.size}
+               </div>
             )}
           </div>
           {selectedOption?.lowestPrice && (
             <div className="text-right">
-              <p className="text-sm text-muted-foreground">구매가</p>
-              <p className="font-bold">{formatPrice(selectedOption.lowestPrice)}원</p>
+              <p className="text-xs text-gray-400 font-medium mb-1">구매가</p>
+              <p className="font-bold text-lg">{formatPrice(selectedOption.lowestPrice)}원</p>
             </div>
           )}
         </div>
@@ -220,24 +229,23 @@ export function BuyPage() {
 
       {/* Step Content */}
       {step === 'size' && (
-        <div>
-          <h2 className="text-lg font-semibold mb-4">사이즈 선택</h2>
-          <div className="grid grid-cols-4 gap-2">
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="grid grid-cols-3 gap-3">
             {options.map((option) => (
               <button
                 key={option.id}
                 onClick={() => handleOptionSelect(option)}
                 disabled={!option.lowestPrice}
                 className={cn(
-                  'p-3 text-center border rounded-lg transition-colors',
+                  'p-4 text-center border rounded-xl transition-all h-20 flex flex-col items-center justify-center gap-1',
                   option.lowestPrice
-                    ? 'border-border hover:border-foreground cursor-pointer'
-                    : 'border-border opacity-50 cursor-not-allowed'
+                    ? 'border-gray-200 hover:border-black cursor-pointer bg-white hover:shadow-md'
+                    : 'border-gray-100 opacity-40 cursor-not-allowed bg-gray-50'
                 )}
               >
-                <p className="font-medium">{option.size}</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {option.lowestPrice ? `${formatPrice(option.lowestPrice)}원` : '-'}
+                <p className="font-bold text-lg">{option.size}</p>
+                <p className="text-xs font-bold text-[#ef6253]">
+                  {option.lowestPrice ? `${formatPrice(option.lowestPrice)}원` : '품절'}
                 </p>
               </button>
             ))}
@@ -246,110 +254,94 @@ export function BuyPage() {
       )}
 
       {step === 'shipping' && (
-        <form onSubmit={handleSubmit(onShippingSubmit)}>
-          <h2 className="text-lg font-semibold mb-4">배송 정보</h2>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="receiverName">수령인</Label>
-              <Input
-                id="receiverName"
-                {...register('receiverName')}
-                placeholder="수령인 이름"
-              />
-              {errors.receiverName && (
-                <p className="text-xs text-destructive">{errors.receiverName.message}</p>
-              )}
+        <form onSubmit={handleSubmit(onShippingSubmit)} className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="space-y-6">
+            <div className="space-y-4">
+               <h3 className="font-bold text-lg">주소 입력</h3>
+               
+               <div className="grid gap-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="receiverName" className="font-bold ml-1">수령인</Label>
+                    <Input id="receiverName" {...register('receiverName')} placeholder="이름을 입력하세요" className="h-12 rounded-xl bg-gray-50 border-0 focus-visible:ring-1 focus-visible:ring-black" />
+                    {errors.receiverName && <p className="text-xs text-red-500 ml-1">{errors.receiverName.message}</p>}
+                  </div>
+
+                  <div className="grid gap-2">
+                    <Label htmlFor="receiverPhone" className="font-bold ml-1">연락처</Label>
+                    <Input id="receiverPhone" {...register('receiverPhone')} placeholder="- 없이 숫자만 입력" className="h-12 rounded-xl bg-gray-50 border-0 focus-visible:ring-1 focus-visible:ring-black" />
+                    {errors.receiverPhone && <p className="text-xs text-red-500 ml-1">{errors.receiverPhone.message}</p>}
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                     <div className="grid gap-2">
+                        <Label htmlFor="zipCode" className="font-bold ml-1">우편번호</Label>
+                        <Input id="zipCode" {...register('zipCode')} placeholder="우편번호" className="h-12 rounded-xl bg-gray-50 border-0 focus-visible:ring-1 focus-visible:ring-black" />
+                     </div>
+                  </div>
+                  {errors.zipCode && <p className="text-xs text-red-500 ml-1">{errors.zipCode.message}</p>}
+
+                  <div className="grid gap-2">
+                    <Label htmlFor="address" className="font-bold ml-1">주소</Label>
+                    <Input id="address" {...register('address')} placeholder="주소 검색" className="h-12 rounded-xl bg-gray-50 border-0 focus-visible:ring-1 focus-visible:ring-black" />
+                    {errors.address && <p className="text-xs text-red-500 ml-1">{errors.address.message}</p>}
+                  </div>
+
+                  <div className="grid gap-2">
+                    <Label htmlFor="addressDetail" className="font-bold ml-1">상세주소</Label>
+                    <Input id="addressDetail" {...register('addressDetail')} placeholder="상세주소 입력" className="h-12 rounded-xl bg-gray-50 border-0 focus-visible:ring-1 focus-visible:ring-black" />
+                    {errors.addressDetail && <p className="text-xs text-red-500 ml-1">{errors.addressDetail.message}</p>}
+                  </div>
+               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="receiverPhone">연락처</Label>
-              <Input
-                id="receiverPhone"
-                {...register('receiverPhone')}
-                placeholder="010-0000-0000"
-              />
-              {errors.receiverPhone && (
-                <p className="text-xs text-destructive">{errors.receiverPhone.message}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="zipCode">우편번호</Label>
-              <Input
-                id="zipCode"
-                {...register('zipCode')}
-                placeholder="12345"
-              />
-              {errors.zipCode && (
-                <p className="text-xs text-destructive">{errors.zipCode.message}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="address">주소</Label>
-              <Input
-                id="address"
-                {...register('address')}
-                placeholder="주소"
-              />
-              {errors.address && (
-                <p className="text-xs text-destructive">{errors.address.message}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="addressDetail">상세주소</Label>
-              <Input
-                id="addressDetail"
-                {...register('addressDetail')}
-                placeholder="상세주소"
-              />
-              {errors.addressDetail && (
-                <p className="text-xs text-destructive">{errors.addressDetail.message}</p>
-              )}
-            </div>
-
-            <Button type="submit" className="w-full" size="lg">
-              다음
+            <Button type="submit" className="w-full h-14 text-lg font-bold rounded-xl bg-black hover:bg-gray-800" size="lg">
+              다음 단계로
             </Button>
           </div>
         </form>
       )}
 
       {step === 'payment' && selectedOption && (
-        <div>
-          <h2 className="text-lg font-semibold mb-4">결제</h2>
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
           
-          <div className="p-4 border border-border rounded-lg mb-6">
-            <h3 className="font-medium mb-3">주문 정보</h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">상품 금액</span>
-                <span>{formatPrice(selectedOption.lowestPrice || 0)}원</span>
+          <div className="p-6 border border-gray-100 rounded-2xl mb-8 bg-white shadow-sm">
+            <h3 className="font-bold text-lg mb-6">최종 결제 금액</h3>
+            <div className="space-y-4 text-sm font-medium">
+              <div className="flex justify-between text-gray-500">
+                <span>상품 금액</span>
+                <span className="text-black">{formatPrice(selectedOption.lowestPrice || 0)}원</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">검수비</span>
-                <span>무료</span>
+              <div className="flex justify-between text-gray-500">
+                <span>검수비</span>
+                <span className="text-black">무료</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">배송비</span>
-                <span>무료</span>
+              <div className="flex justify-between text-gray-500">
+                <span>배송비</span>
+                <span className="text-black">무료</span>
               </div>
               <Separator className="my-2" />
-              <div className="flex justify-between font-bold">
-                <span>총 결제금액</span>
-                <span>{formatPrice(selectedOption.lowestPrice || 0)}원</span>
+              <div className="flex justify-between items-center pt-2">
+                <span className="text-lg font-bold">총 결제금액</span>
+                <span className="text-2xl font-black text-[#ef6253]">{formatPrice(selectedOption.lowestPrice || 0)}원</span>
               </div>
             </div>
           </div>
 
+          <div className="bg-gray-50 p-4 rounded-xl mb-8 flex items-start gap-3">
+             <Lock className="w-5 h-5 text-gray-400 mt-0.5" />
+             <div className="text-xs text-gray-500">
+                <p className="font-bold text-gray-700 mb-1">안전 결제</p>
+                <p>UNBOX는 에스크로 결제를 통해 안전한 거래를 보장합니다.</p>
+             </div>
+          </div>
+
           <Button
-            className="w-full"
+            className="w-full h-14 text-lg font-bold rounded-xl bg-[#ef6253] hover:bg-[#de5445] text-white"
             size="lg"
             onClick={handlePayment}
             disabled={isLoading}
           >
-            {isLoading ? '처리 중...' : `${formatPrice(selectedOption.lowestPrice || 0)}원 결제하기`}
+            {isLoading ? '결제 처리 중...' : '결제하기'}
           </Button>
         </div>
       )}

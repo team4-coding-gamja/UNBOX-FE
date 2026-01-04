@@ -31,7 +31,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Tags } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -92,10 +92,10 @@ export function BrandManagementPage() {
     setIsSubmitting(true);
     try {
       if (selectedBrand) {
-        await adminBrandsApi.update(selectedBrand.id, data);
+        await adminBrandsApi.update(selectedBrand.id, data as any);
         toast.success('브랜드가 수정되었습니다');
       } else {
-        await adminBrandsApi.create(data);
+        await adminBrandsApi.create(data as any);
         toast.success('브랜드가 등록되었습니다');
       }
       setDialogOpen(false);
@@ -129,14 +129,17 @@ export function BrandManagementPage() {
 
   if (isLoading) {
     return (
-      <div>
-        <div className="flex items-center justify-between mb-8">
-          <Skeleton className="h-8 w-40" />
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+             <Skeleton className="h-8 w-40 mb-2" />
+             <Skeleton className="h-4 w-60" />
+          </div>
           <Skeleton className="h-10 w-32" />
         </div>
         <div className="space-y-4">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} className="h-16 rounded-lg" />
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Skeleton key={i} className="h-16 rounded-xl" />
           ))}
         </div>
       </div>
@@ -144,48 +147,53 @@ export function BrandManagementPage() {
   }
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-bold">브랜드 관리</h1>
-        <Button onClick={openCreateDialog}>
+    <div className='space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500'>
+      <div className="flex items-center justify-between bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+        <div>
+           <h1 className="text-2xl font-bold tracking-tight text-gray-900">브랜드 관리</h1>
+           <p className="text-gray-500 mt-1 text-sm">등록된 브랜드를 수정하거나 새로운 브랜드를 추가합니다.</p>
+        </div>
+        <Button onClick={openCreateDialog} className="bg-black hover:bg-gray-800 text-white rounded-full px-6">
           <Plus className="h-4 w-4 mr-2" />
           브랜드 추가
         </Button>
       </div>
 
-      {brands.length > 0 ? (
-        <div className="bg-background rounded-lg border border-border overflow-hidden">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        {brands.length > 0 ? (
           <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>한글명</TableHead>
-                <TableHead>영문명</TableHead>
+            <TableHeader className="bg-gray-50/50">
+              <TableRow className="border-gray-100 hover:bg-transparent">
+                <TableHead className="py-4 pl-6 text-xs font-semibold uppercase text-gray-500">Brand Name (KO)</TableHead>
+                <TableHead className="py-4 text-xs font-semibold uppercase text-gray-500">Brand Name (EN)</TableHead>
                 <TableHead className="w-24"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {brands.map((brand) => (
-                <TableRow key={brand.id}>
-                  <TableCell className="font-medium">{brand.nameKo}</TableCell>
-                  <TableCell>{brand.name}</TableCell>
+                <TableRow key={brand.id} className="border-gray-50 hover:bg-gray-50/50 transition-colors">
+                  <TableCell className="pl-6 py-4 font-semibold text-gray-900">{brand.nameKo}</TableCell>
+                  <TableCell className="text-gray-600 font-medium">{brand.name}</TableCell>
                   <TableCell>
-                    <div className="flex gap-1">
+                    <div className="flex gap-1 justify-end pr-4">
                       <Button
                         variant="ghost"
                         size="icon"
+                        className="h-8 w-8 text-gray-400 hover:text-black hover:bg-gray-100 rounded-full"
                         onClick={() => openEditDialog(brand)}
                       >
-                        <Pencil className="h-4 w-4" />
+                        <Pencil className="h-3.5 w-3.5" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="icon"
+                        className="h-8 w-8 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full"
                         onClick={() => {
                           setSelectedBrand(brand);
                           setDeleteDialogOpen(true);
                         }}
                       >
-                        <Trash2 className="h-4 w-4 text-destructive" />
+                        <Trash2 className="h-3.5 w-3.5" />
                       </Button>
                     </div>
                   </TableCell>
@@ -193,16 +201,23 @@ export function BrandManagementPage() {
               ))}
             </TableBody>
           </Table>
-        </div>
-      ) : (
-        <div className="text-center py-16 bg-background rounded-lg border border-border">
-          <p className="text-muted-foreground">등록된 브랜드가 없습니다</p>
-        </div>
-      )}
+        ) : (
+          <div className="flex flex-col items-center justify-center py-24 text-center">
+             <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                 <Tags className="h-8 w-8 text-gray-400" />
+             </div>
+             <h3 className="text-lg font-semibold text-gray-900">등록된 브랜드가 없습니다</h3>
+             <p className="text-gray-500 mt-1 mb-6 max-w-sm">새로운 브랜드를 추가하여 상품을 등록할 수 있습니다.</p>
+             <Button onClick={openCreateDialog} variant="outline">
+                첫 브랜드 추가하기
+             </Button>
+          </div>
+        )}
+      </div>
 
       {/* Create/Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>{selectedBrand ? '브랜드 수정' : '브랜드 추가'}</DialogTitle>
           </DialogHeader>
@@ -232,11 +247,11 @@ export function BrandManagementPage() {
               )}
             </div>
 
-            <DialogFooter>
+            <DialogFooter className="mt-6">
               <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
                 취소
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button type="submit" disabled={isSubmitting} className="bg-black text-white hover:bg-gray-800">
                 {isSubmitting ? '저장 중...' : '저장'}
               </Button>
             </DialogFooter>
@@ -250,7 +265,7 @@ export function BrandManagementPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>브랜드 삭제</AlertDialogTitle>
             <AlertDialogDescription>
-              {selectedBrand?.nameKo} 브랜드를 삭제하시겠습니까?
+              <span className="font-semibold text-black">{selectedBrand?.nameKo}</span> 브랜드를 삭제하시겠습니까?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -258,7 +273,7 @@ export function BrandManagementPage() {
             <AlertDialogAction
               onClick={handleDelete}
               disabled={isSubmitting}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="bg-red-600 text-white hover:bg-red-700"
             >
               {isSubmitting ? '삭제 중...' : '삭제'}
             </AlertDialogAction>

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { productsApi, brandsApi, wishlistApi } from '@/lib/api';
 import { Product, Brand } from '@/types';
@@ -8,7 +9,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { ChevronRight, Filter } from 'lucide-react';
 
-// Real API calls restored
 export function HomePage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
@@ -89,55 +89,50 @@ export function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-white pb-20">
       {/* Hero Banner Section */}
-      <section className="relative w-full bg-[#f4f4f4]">
+      <section className="relative w-full bg-[#f4f4f4] overscroll-none">
         <div className="container mx-auto px-4 md:px-6">
-          <div className="flex flex-col md:flex-row items-center justify-between py-12 md:py-20 lg:py-24">
-            <div className="space-y-6 text-center md:text-left md:max-w-[50%]">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter text-foreground">
-                STYLE YOUR <br className="hidden md:block" />
-                <span className="text-primary">LIFE</span>
+          <div className="flex flex-col md:flex-row items-center justify-between py-16 md:py-24 lg:py-32">
+            <div className="space-y-6 text-center md:text-left z-10 md:max-w-[60%]">
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-black italic tracking-tighter text-black leading-[0.9]">
+                STYLE YOUR<br />
+                <span className="text-gray-400">LIFE</span> WITH<br />
+                UNBOX.
               </h1>
-              <p className="text-lg text-muted-foreground md:pr-10">
-                한정판 스니커즈부터 럭셔리 아이템까지, <br className="md:hidden" /> 
+              <p className="text-lg md:text-xl text-gray-600 font-medium max-w-lg mx-auto md:mx-0">
+                한정판 스니커즈부터 럭셔리 아이템까지,<br />
                 검증된 정품을 안전하게 거래하세요.
               </p>
-              <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
-                <Button size="lg" className="rounded-full px-8 text-base font-semibold">
+              <div className="flex justify-center md:justify-start pt-4">
+                <Button size="lg" className="rounded-full px-10 h-14 text-lg font-bold bg-black text-white hover:bg-gray-800 transition-all">
                   앱 설치하기
-                </Button>
-                <Button size="lg" variant="outline" className="rounded-full px-8 text-base font-semibold">
-                  이용 가이드
                 </Button>
               </div>
             </div>
-            {/* Abstract Visual / Image Placeholder */}
-            <div className="mt-10 md:mt-0 w-full md:w-[45%] flex justify-center">
-              <div className="relative w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 rounded-full bg-gradient-to-tr from-gray-200 to-gray-100 dark:from-gray-800 dark:to-gray-900 shadow-2xl flex items-center justify-center overflow-hidden">
-                <span className="text-4xl font-black text-gray-300 dark:text-gray-700 select-none">UNBOX</span>
-              </div>
+            {/* Visual element */}
+             <div className="absolute right-0 top-0 bottom-0 w-1/2 opacity-10 pointer-events-none md:opacity-100 md:relative md:w-auto md:flex-1 flex justify-center items-center">
+                 <div className="w-[300px] h-[300px] md:w-[400px] md:h-[400px] rounded-full bg-gradient-to-br from-gray-200 to-white blur-3xl opacity-50"></div>
             </div>
           </div>
         </div>
       </section>
 
-      <div className="container mx-auto px-4 md:px-6 mt-12 space-y-16">
+      <div className="container mx-auto px-4 md:px-6 mt-16 space-y-20">
         
-        {/* Brand Filters / Category */}
+        {/* Brand Filters */}
         <section>
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold tracking-tight">Brands</h2>
-            <Button variant="ghost" className="text-sm text-muted-foreground hover:text-foreground">
-              ALL BRANDS <ChevronRight className="ml-1 h-4 w-4" />
-            </Button>
+            <h2 className="text-xl font-bold tracking-tight text-black">Brands</h2>
           </div>
-          <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
+          <div className="flex gap-2 overflow-x-auto pb-4 scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
             <Button
-              variant={selectedBrand === null ? 'default' : 'secondary'}
+              variant={selectedBrand === null ? 'default' : 'outline'}
               onClick={() => setSelectedBrand(null)}
-              className={`rounded-full px-6 font-semibold transition-all ${
-                selectedBrand === null ? 'shadow-md' : 'bg-muted text-muted-foreground hover:bg-muted/80'
+              className={`rounded-full px-5 h-9 text-sm font-bold border-0 transition-all ${
+                selectedBrand === null 
+                ? 'bg-black text-white hover:bg-gray-800' 
+                : 'bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-black'
               }`}
             >
               전체
@@ -145,12 +140,12 @@ export function HomePage() {
             {brands.map((brand) => (
               <Button
                 key={brand.id}
-                variant={selectedBrand === brand.id ? 'default' : 'secondary'}
+                variant={selectedBrand === brand.id ? 'default' : 'outline'}
                 onClick={() => setSelectedBrand(brand.id)}
-                className={`rounded-full px-6 font-semibold transition-all ${
+                className={`rounded-full px-5 h-9 text-sm font-bold border-0 transition-all ${
                   selectedBrand === brand.id 
-                    ? 'shadow-md' 
-                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                    ? 'bg-black text-white hover:bg-gray-800' 
+                    : 'bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-black'
                 }`}
               >
                 {brand.nameKo || brand.name}
@@ -163,29 +158,29 @@ export function HomePage() {
         <section>
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-2xl font-bold tracking-tight mb-1">Most Popular</h2>
-              <p className="text-sm text-muted-foreground">지금 가장 인기 있는 상품</p>
+              <h2 className="text-xl font-bold tracking-tight text-black mb-1">Most Popular</h2>
+              <p className="text-sm text-gray-500">지금 가장 인기 있는 상품</p>
             </div>
-            <Button variant="ghost" className="hidden sm:flex text-sm text-muted-foreground hover:text-foreground">
-              더보기 <ChevronRight className="ml-1 h-4 w-4" />
+            <Button variant="ghost" className="text-sm text-gray-400 hover:text-black font-medium">
+              더보기 <ChevronRight className="ml-0.5 h-4 w-4" />
             </Button>
           </div>
 
           {isLoading ? (
-            <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-x-4 gap-y-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-x-3 gap-y-8 md:gap-x-5">
               {Array.from({ length: 10 }).map((_, i) => (
-                <div key={i} className="space-y-4">
-                  <Skeleton className="aspect-square rounded-2xl" />
-                  <div className="space-y-2">
-                    <Skeleton className="h-4 w-20" />
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-2/3" />
+                <div key={i} className="space-y-3">
+                  <Skeleton className="aspect-square rounded-[12px] bg-gray-100" />
+                  <div className="space-y-2 px-1">
+                    <Skeleton className="h-4 w-20 bg-gray-100" />
+                    <Skeleton className="h-4 w-full bg-gray-100" />
+                    <Skeleton className="h-4 w-2/3 bg-gray-100" />
                   </div>
                 </div>
               ))}
             </div>
           ) : products.length > 0 ? (
-            <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-x-4 gap-y-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-x-3 gap-y-8 md:gap-x-5">
               {products.map((product) => (
                 <ProductCard
                   key={product.id}
@@ -196,27 +191,27 @@ export function HomePage() {
               ))}
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center py-24 bg-muted/30 rounded-3xl border border-dashed">
-              <Filter className="h-12 w-12 text-muted-foreground/50 mb-4" />
-              <p className="text-lg font-medium text-muted-foreground">등록된 상품이 없습니다</p>
-              <p className="text-sm text-muted-foreground mt-1">다른 브랜드를 선택하거나 나중에 다시 확인해주세요.</p>
+            <div className="flex flex-col items-center justify-center py-32 bg-gray-50 rounded-3xl border border-dashed border-gray-200">
+              <Filter className="h-10 w-10 text-gray-300 mb-4" />
+              <p className="text-lg font-bold text-gray-500">상품이 없습니다</p>
+              <p className="text-sm text-gray-400 mt-1">다른 브랜드를 선택해보세요.</p>
             </div>
           )}
         </section>
 
-        {/* Just Dropped Section (Mock using same data for design demo) */}
+        {/* Just Dropped (Only show if no brand selected, for variety) */}
         {!selectedBrand && products.length > 0 && (
           <section>
             <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h2 className="text-2xl font-bold tracking-tight mb-1">Just Dropped</h2>
-                  <p className="text-sm text-muted-foreground">발매된 최신 상품</p>
+                  <h2 className="text-xl font-bold tracking-tight text-black mb-1">New Arrivals</h2>
+                  <p className="text-sm text-gray-500">새롭게 등록된 상품</p>
                 </div>
-                <Button variant="ghost" className="hidden sm:flex text-sm text-muted-foreground hover:text-foreground">
-                  더보기 <ChevronRight className="ml-1 h-4 w-4" />
+                <Button variant="ghost" className="text-sm text-gray-400 hover:text-black font-medium">
+                  더보기 <ChevronRight className="ml-0.5 h-4 w-4" />
                 </Button>
             </div>
-            <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-x-4 gap-y-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-x-3 gap-y-8 md:gap-x-5">
                {products.slice(0, 5).map((product) => (
                 <ProductCard
                   key={`dropped-${product.id}`}

@@ -39,7 +39,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Users } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -101,7 +101,7 @@ export function StaffManagementPage() {
   const onSubmit = async (data: StaffFormData) => {
     setIsSubmitting(true);
     try {
-      await adminStaffApi.create(data);
+      await adminStaffApi.create(data as any);
       toast.success('스태프가 등록되었습니다');
       setDialogOpen(false);
       reset();
@@ -138,14 +138,17 @@ export function StaffManagementPage() {
 
   if (isLoading) {
     return (
-      <div>
-        <div className="flex items-center justify-between mb-8">
-          <Skeleton className="h-8 w-40" />
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+             <Skeleton className="h-8 w-40 mb-2" />
+             <Skeleton className="h-4 w-60" />
+          </div>
           <Skeleton className="h-10 w-32" />
         </div>
         <div className="space-y-4">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} className="h-16 rounded-lg" />
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Skeleton key={i} className="h-16 rounded-xl" />
           ))}
         </div>
       </div>
@@ -153,64 +156,86 @@ export function StaffManagementPage() {
   }
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-bold">스태프 관리</h1>
-        <Button onClick={() => setDialogOpen(true)}>
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="flex items-center justify-between bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+        <div>
+           <h1 className="text-2xl font-bold tracking-tight text-gray-900">스태프 관리</h1>
+           <p className="text-gray-500 mt-1 text-sm">플랫폼 관리자 계정을 생성하고 권한을 부여합니다.</p>
+        </div>
+        <Button onClick={() => setDialogOpen(true)} className="bg-black hover:bg-gray-800 text-white rounded-full px-6">
           <Plus className="h-4 w-4 mr-2" />
           스태프 추가
         </Button>
       </div>
 
-      {staff.length > 0 ? (
-        <div className="bg-background rounded-lg border border-border overflow-hidden">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        {staff.length > 0 ? (
           <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>이름</TableHead>
-                <TableHead>이메일</TableHead>
-                <TableHead>역할</TableHead>
-                <TableHead>가입일</TableHead>
+            <TableHeader className="bg-gray-50/50">
+              <TableRow className="border-gray-100 hover:bg-transparent">
+                <TableHead className="py-4 pl-6 text-xs font-semibold uppercase text-gray-500 w-[200px]">Profile</TableHead>
+                <TableHead className="py-4 text-xs font-semibold uppercase text-gray-500">Email</TableHead>
+                <TableHead className="py-4 text-xs font-semibold uppercase text-gray-500">Role</TableHead>
+                <TableHead className="py-4 text-xs font-semibold uppercase text-gray-500">Joined</TableHead>
                 <TableHead className="w-20"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {staff.map((member) => (
-                <TableRow key={member.id}>
-                  <TableCell className="font-medium">{member.nickname}</TableCell>
-                  <TableCell>{member.email}</TableCell>
-                  <TableCell>
-                    <Badge variant="secondary">
-                      {ADMIN_ROLE_MAP[member.adminRole]}
-                    </Badge>
+                <TableRow key={member.id} className="border-gray-50 hover:bg-gray-50/50 transition-colors">
+                  <TableCell className="pl-6 py-4">
+                     <div className="flex items-center gap-3">
+                        <div className="h-9 w-9 rounded-full bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-600">
+                            {member.nickname[0].toUpperCase()}
+                        </div>
+                        <span className="font-semibold text-gray-900">{member.nickname}</span>
+                     </div>
                   </TableCell>
-                  <TableCell>{formatDate(member.createdAt)}</TableCell>
+                  <TableCell className="text-gray-600">{member.email}</TableCell>
+                  <TableCell>
+                    {member.adminRole === 'ROLE_MASTER' ? (
+                        <Badge className="bg-black text-white hover:bg-gray-900">Master</Badge>
+                    ) : member.adminRole === 'ROLE_MANAGER' ? (
+                        <Badge className="bg-blue-50 text-blue-700 hover:bg-blue-100 border-blue-200">Manager</Badge>
+                    ) : (
+                        <Badge className="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border-emerald-200">Inspector</Badge>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-gray-500 text-sm">{formatDate(member.createdAt)}</TableCell>
                   <TableCell>
                     <Button
                       variant="ghost"
                       size="icon"
+                      className="text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full"
                       onClick={() => {
                         setSelectedStaff(member);
                         setDeleteDialogOpen(true);
                       }}
                     >
-                      <Trash2 className="h-4 w-4 text-destructive" />
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-        </div>
-      ) : (
-        <div className="text-center py-16 bg-background rounded-lg border border-border">
-          <p className="text-muted-foreground">등록된 스태프가 없습니다</p>
-        </div>
-      )}
+        ) : (
+          <div className="flex flex-col items-center justify-center py-24 text-center">
+             <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                 <Users className="h-8 w-8 text-gray-400" />
+             </div>
+             <h3 className="text-lg font-semibold text-gray-900">등록된 스태프가 없습니다</h3>
+             <p className="text-gray-500 mt-1 mb-6 max-w-sm">새로운 스태프를 추가하여 관리 권한을 부여하세요.</p>
+             <Button onClick={() => setDialogOpen(true)} variant="outline">
+                첫 스태프 추가하기
+             </Button>
+          </div>
+        )}
+      </div>
 
       {/* Create Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>스태프 추가</DialogTitle>
           </DialogHeader>
@@ -282,11 +307,11 @@ export function StaffManagementPage() {
               </Select>
             </div>
 
-            <DialogFooter>
+            <DialogFooter className="mt-6">
               <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
                 취소
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button type="submit" disabled={isSubmitting} className="bg-black text-white hover:bg-gray-800">
                 {isSubmitting ? '등록 중...' : '등록'}
               </Button>
             </DialogFooter>
@@ -300,7 +325,8 @@ export function StaffManagementPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>스태프 삭제</AlertDialogTitle>
             <AlertDialogDescription>
-              {selectedStaff?.nickname}님을 삭제하시겠습니까?
+              <span className="font-semibold text-black">{selectedStaff?.nickname}</span>님을 삭제하시겠습니까?
+              <br/>삭제된 계정은 복구할 수 없습니다.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -308,7 +334,7 @@ export function StaffManagementPage() {
             <AlertDialogAction
               onClick={handleDelete}
               disabled={isSubmitting}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="bg-red-600 text-white hover:bg-red-700"
             >
               {isSubmitting ? '삭제 중...' : '삭제'}
             </AlertDialogAction>

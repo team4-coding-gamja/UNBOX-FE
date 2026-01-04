@@ -1,20 +1,20 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Users, 
   Package, 
   Tags, 
-  ClipboardCheck, 
+  ClipboardList, 
   LogOut,
   Menu,
   X
 } from 'lucide-react';
-import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { ADMIN_ROLE_MAP } from '@/types';
 import { cn } from '@/lib/utils';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 interface MenuItem {
   path: string;
@@ -51,7 +51,7 @@ const menuItems: MenuItem[] = [
   { 
     path: '/admin/orders', 
     label: '주문 검수', 
-    icon: ClipboardCheck,
+    icon: ClipboardList,
     roles: ['ROLE_MASTER', 'ROLE_INSPECTOR']
   },
 ];
@@ -82,97 +82,110 @@ export function AdminLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-muted">
+    <div className="min-h-screen bg-gray-50 flex">
       {/* Mobile Header */}
-      <header className="md:hidden sticky top-0 z-50 bg-background border-b border-border px-4 py-3">
-        <div className="flex items-center justify-between">
-          <Link to="/admin" className="text-xl font-bold tracking-tighter">
-            UNBOX
-          </Link>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          >
-            {isSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </Button>
-        </div>
+      <header className="md:hidden fixed top-0 w-full z-50 bg-black text-white px-4 py-3 flex items-center justify-between shadow-md">
+        <Link to="/admin" className="text-lg font-black tracking-tighter">
+          UNBOX <span className="text-xs font-normal opacity-70 ml-1">ADMIN</span>
+        </Link>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="text-white hover:bg-white/10"
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+        >
+          {isSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </Button>
       </header>
 
-      <div className="flex">
-        {/* Sidebar */}
-        <aside
-          className={cn(
-            'fixed md:sticky top-0 left-0 z-40 h-screen w-64 bg-background border-r border-border transition-transform',
-            'md:translate-x-0',
-            isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-          )}
-        >
-          <div className="flex flex-col h-full p-4">
-            {/* Logo */}
-            <Link to="/admin" className="hidden md:block text-xl font-bold tracking-tighter mb-8 px-3">
-              UNBOX
+      {/* Sidebar Overlay */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 md:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside
+        className={cn(
+          'fixed inset-y-0 left-0 z-50 w-64 bg-black text-white transform transition-transform duration-300 md:relative md:translate-x-0',
+          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        )}
+      >
+        <div className="flex flex-col h-full border-r border-white/10">
+          {/* Logo Area */}
+          <div className="h-16 flex items-center px-6 border-b border-white/10">
+            <Link to="/admin" className="text-2xl font-black tracking-tighter">
+              UNBOX <span className="text-xs font-medium text-gray-400 ml-1">ADMIN</span>
             </Link>
+          </div>
 
-            {/* User Info */}
-            <div className="px-3 py-4 mb-4 bg-muted rounded-lg">
-              <p className="font-medium">{user.nickname}</p>
-              <p className="text-xs text-muted-foreground">
-                {adminRole ? ADMIN_ROLE_MAP[adminRole] : '관리자'}
-              </p>
-            </div>
+          {/* User Profile Summary */}
+          <div className="p-6 border-b border-white/10 bg-white/5">
+              <div className="flex items-center gap-3">
+                  <Avatar className="h-10 w-10 border border-white/20">
+                      <AvatarFallback className="bg-gray-800 text-white font-bold">
+                          {user.nickname?.[0]?.toUpperCase()}
+                      </AvatarFallback>
+                  </Avatar>
+                  <div>
+                      <p className="font-bold text-sm">{user.nickname}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        {adminRole ? ADMIN_ROLE_MAP[adminRole] : '관리자'}
+                      </p>
+                  </div>
+              </div>
+          </div>
 
-            {/* Navigation */}
-            <nav className="flex-1 space-y-1">
-              {filteredMenuItems.map((item) => {
-                const isActive = item.path === '/admin' 
-                  ? location.pathname === '/admin'
-                  : location.pathname.startsWith(item.path);
+          {/* Navigation */}
+          <nav className="flex-1 overflow-y-auto py-6 px-3 space-y-1">
+            {filteredMenuItems.map((item) => {
+              const isActive = item.path === '/admin' 
+                ? location.pathname === '/admin'
+                : location.pathname.startsWith(item.path);
 
-                return (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    onClick={() => setIsSidebarOpen(false)}
-                    className={cn(
-                      'flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors',
-                      isActive
-                        ? 'bg-foreground text-background'
-                        : 'hover:bg-muted text-muted-foreground'
-                    )}
-                  >
-                    <item.icon className="h-4 w-4" />
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </nav>
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  onClick={() => setIsSidebarOpen(false)}
+                  className={cn(
+                    'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200',
+                    isActive
+                      ? 'bg-white text-black shadow-md shadow-white/10'
+                      : 'text-gray-400 hover:text-white hover:bg-white/5'
+                  )}
+                >
+                  <item.icon className={cn("h-5 w-5", isActive ? "text-black" : "text-gray-400")} />
+                  {item.label}
+                </Link>
+              );
+            })}
+          </nav>
 
-            {/* Logout */}
+          {/* Footer / Logout */}
+          <div className="p-4 border-t border-white/10">
             <Button
               variant="ghost"
-              className="justify-start gap-3 text-muted-foreground hover:text-destructive"
+              className="w-full justify-start text-gray-400 hover:text-red-400 hover:bg-red-950/30 gap-3"
               onClick={handleLogout}
             >
               <LogOut className="h-4 w-4" />
               로그아웃
             </Button>
           </div>
-        </aside>
+        </div>
+      </aside>
 
-        {/* Overlay */}
-        {isSidebarOpen && (
-          <div
-            className="fixed inset-0 z-30 bg-background/80 md:hidden"
-            onClick={() => setIsSidebarOpen(false)}
-          />
-        )}
-
-        {/* Main Content */}
-        <main className="flex-1 p-4 md:p-8 min-h-screen">
-          <Outlet />
-        </main>
-      </div>
+      {/* Main Content Area */}
+      <main className="flex-1 flex flex-col min-w-0 overflow-hidden bg-gray-50 pt-16 md:pt-0">
+        <div className="flex-1 overflow-auto p-4 md:p-8">
+            <div className="max-w-7xl mx-auto">
+                <Outlet />
+            </div>
+        </div>
+      </main>
     </div>
   );
 }
