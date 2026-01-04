@@ -53,6 +53,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshUser = async () => {
     try {
+      const userType = localStorage.getItem('userType');
+      
+      if (userType === 'admin') {
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+          setUser(JSON.parse(storedUser));
+        }
+        return;
+      }
+
       const response = await userApi.getMe();
       const userData = response.data?.data || response.data;
       setUser(userData);
