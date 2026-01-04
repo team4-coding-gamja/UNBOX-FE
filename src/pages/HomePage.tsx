@@ -8,23 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { ChevronRight, Filter } from 'lucide-react';
 
-// MOCK DATA FOR UI TESTING
-const MOCK_BRANDS: Brand[] = [
-  { id: '1', name: 'Nike', nameKo: '나이키', imageUrl: '' },
-  { id: '2', name: 'Adidas', nameKo: '아디다스', imageUrl: '' },
-  { id: '3', name: 'New Balance', nameKo: '뉴발란스', imageUrl: '' },
-  { id: '4', name: 'Stussy', nameKo: '스투시', imageUrl: '' },
-  { id: '5', name: 'Iab Studio', nameKo: '아이앱 스튜디오', imageUrl: '' },
-];
-
-const MOCK_PRODUCTS: Product[] = [
-  { id: '101', brandId: '1', name: 'Air Force 1 Low 07 White', nameKo: '에어포스 1 로우 07 화이트', modelNumber: 'CW2288-111', imageUrl: 'https://dummyimage.com/600x600/f5f5f5/000000&text=Air+Force+1' },
-  { id: '102', brandId: '1', name: 'Dunk Low Retro Black', nameKo: '덩크 로우 레트로 블랙', modelNumber: 'DD1391-100', imageUrl: 'https://dummyimage.com/600x600/f5f5f5/000000&text=Dunk+Low' },
-  { id: '201', brandId: '2', name: 'Samba OG Cloud White', nameKo: '삼바 OG 클라우드 화이트', modelNumber: 'B75806', imageUrl: 'https://dummyimage.com/600x600/f5f5f5/000000&text=Samba' },
-  { id: '301', brandId: '3', name: '993 Made in USA Grey', nameKo: '993 메이드 인 USA 그레이', modelNumber: 'MR993GL', imageUrl: 'https://dummyimage.com/600x600/f5f5f5/000000&text=NB+993' },
-  { id: '401', brandId: '4', name: 'Basic Stussy Hoodie', nameKo: '베이직 스투시 후드', modelNumber: 'STU-BQ', imageUrl: 'https://dummyimage.com/600x600/f5f5f5/000000&text=Stussy' },
-];
-
+// Real API calls restored
 export function HomePage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
@@ -47,13 +31,8 @@ export function HomePage() {
 
   const fetchBrands = async () => {
     try {
-      // Mock Data
-      setTimeout(() => setBrands(MOCK_BRANDS), 200);
-
-      /*
       const response = await brandsApi.getAll();
       setBrands(response.data?.data || response.data || []);
-      */
     } catch (error) {
       console.error('Failed to fetch brands:', error);
     }
@@ -62,33 +41,20 @@ export function HomePage() {
   const fetchProducts = async () => {
     setIsLoading(true);
     try {
-      // Mock Data
-      setTimeout(() => {
-          const filtered = selectedBrand 
-            ? MOCK_PRODUCTS.filter(p => p.brandId === selectedBrand)
-            : MOCK_PRODUCTS;
-          setProducts(filtered);
-          setIsLoading(false);
-      }, 300);
-
-      /*
       const params = selectedBrand ? { brandId: selectedBrand } : {};
       const response = await productsApi.getAll(params);
       const data = response.data?.data?.content || response.data?.content || response.data || [];
       setProducts(Array.isArray(data) ? data : []);
-      */
     } catch (error) {
       console.error('Failed to fetch products:', error);
       setProducts([]);
-      setIsLoading(false);
     } finally {
-      // setIsLoading(false);
+      setIsLoading(false);
     }
   };
 
   const fetchWishlist = async () => {
     try {
-      // Real API (Optional: Mock this if needed)
       const response = await wishlistApi.getAll();
       const items = response.data || [];
       setWishlist(new Set(items.map((item: any) => item.product?.id || item.productId)));

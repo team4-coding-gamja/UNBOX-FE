@@ -8,25 +8,22 @@ import { ordersApi, sellingBidsApi, wishlistApi } from '@/lib/api';
 export function MyPageHome() {
   const { user } = useAuth();
 
-  // Stats State (Default: Mock Data)
+  // Stats State
   const [stats, setStats] = useState([
     { label: '구매 내역', value: 0, unit: '건', path: '/mypage/orders' },
     { label: '판매 내역', value: 0, unit: '건', path: '/mypage/sales' },
     { label: '관심 상품', value: 0, unit: '개', path: '/mypage/wishlist' },
   ]);
 
-  /* 
-  // TODO: [Backend Integration] Enable this useEffect to fetch real dashboard stats
   useEffect(() => {
     const fetchStats = async () => {
       try {
         const [ordersRes, salesRes, wishlistRes] = await Promise.all([
-          ordersApi.getMine({ size: 1 }), // Just need count
+          ordersApi.getMine({ size: 1 }),
           sellingBidsApi.getMine({ size: 1 }),
           wishlistApi.getAll()
         ]);
         
-        // Adjust response structure based on actual API
         setStats([
             { label: '구매 내역', value: ordersRes.data?.data?.totalElements || 0, unit: '건', path: '/mypage/orders' },
             { label: '판매 내역', value: salesRes.data?.data?.totalElements || 0, unit: '건', path: '/mypage/sales' },
@@ -38,7 +35,6 @@ export function MyPageHome() {
     };
     if (user) fetchStats();
   }, [user]);
-  */
 
   return (
     <div className="space-y-10">

@@ -5,7 +5,7 @@ import { productsApi, wishlistApi, reviewsApi } from '@/lib/api';
 import { Product, ProductOption, Review } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Badge } from '@/components/ui/badge';
+// import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';

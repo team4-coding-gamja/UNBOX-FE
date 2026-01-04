@@ -13,32 +13,6 @@ import { cn } from '@/lib/utils';
 
 type Step = 'brand' | 'product' | 'size' | 'price' | 'complete';
 
-// MOCK DATA FOR UI TESTING
-const MOCK_BRANDS: Brand[] = [
-  { id: '1', name: 'Nike', nameKo: '나이키', imageUrl: '' },
-  { id: '2', name: 'Adidas', nameKo: '아디다스', imageUrl: '' },
-  { id: '3', name: 'New Balance', nameKo: '뉴발란스', imageUrl: '' },
-  { id: '4', name: 'Stussy', nameKo: '스투시', imageUrl: '' },
-  { id: '5', name: 'Iab Studio', nameKo: '아이앱 스튜디오', imageUrl: '' },
-];
-
-const MOCK_PRODUCTS: Product[] = [
-  { id: '101', brandId: '1', name: 'Air Force 1 Low 07 White', nameKo: '에어포스 1 로우 07 화이트', modelNumber: 'CW2288-111', imageUrl: 'https://dummyimage.com/600x600/f5f5f5/000000&text=Air+Force+1' },
-  { id: '102', brandId: '1', name: 'Dunk Low Retro Black', nameKo: '덩크 로우 레트로 블랙', modelNumber: 'DD1391-100', imageUrl: 'https://dummyimage.com/600x600/f5f5f5/000000&text=Dunk+Low' },
-  { id: '201', brandId: '2', name: 'Samba OG Cloud White', nameKo: '삼바 OG 클라우드 화이트', modelNumber: 'B75806', imageUrl: 'https://dummyimage.com/600x600/f5f5f5/000000&text=Samba' },
-  { id: '301', brandId: '3', name: '993 Made in USA Grey', nameKo: '993 메이드 인 USA 그레이', modelNumber: 'MR993GL', imageUrl: 'https://dummyimage.com/600x600/f5f5f5/000000&text=NB+993' },
-  { id: '401', brandId: '4', name: 'Basic Stussy Hoodie', nameKo: '베이직 스투시 후드', modelNumber: 'STU-BQ', imageUrl: 'https://dummyimage.com/600x600/f5f5f5/000000&text=Stussy' },
-];
-
-const MOCK_OPTIONS: ProductOption[] = [
-    { id: 'opt1', productId: '101', size: '230', stockQuantity: 99 },
-    { id: 'opt2', productId: '101', size: '240', stockQuantity: 99 },
-    { id: 'opt3', productId: '101', size: '250', stockQuantity: 99 },
-    { id: 'opt4', productId: '101', size: '260', stockQuantity: 99 },
-    { id: 'opt5', productId: '101', size: '270', stockQuantity: 99 },
-    { id: 'opt6', productId: '101', size: '280', stockQuantity: 99 },
-];
-
 export function SellPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -72,62 +46,62 @@ export function SellPage() {
   const fetchBrands = async () => {
     setIsLoading(true);
     try {
-      // Mock Data (Fallback)
-      setTimeout(() => {
-          setBrands(MOCK_BRANDS);
-          setIsLoading(false);
-      }, 300);
+      const response = await brandsApi.getAll();
+      setBrands(response.data?.data || response.data || []);
     } catch (error) {
-       // toast.error('브랜드 목록을 불러오는데 실패했습니다');
-       setIsLoading(false);
-    } 
+       toast.error('브랜드 목록을 불러오는데 실패했습니다');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const fetchProducts = async (brandId: string) => {
     setIsLoading(true);
     try {
-       // Mock Data
-       setTimeout(() => {
-         const filtered = MOCK_PRODUCTS.filter(p => p.brandId === brandId);
-         setProducts(filtered);
-         setIsLoading(false);
-       }, 300);
+      const response = await productsApi.getAll({ brandId });
+      const data = response.data?.data?.content || response.data?.content || response.data || [];
+      setProducts(Array.isArray(data) ? data : []);
     } catch (error) {
-      // toast.error('상품 목록을 불러오는데 실패했습니다');
+      toast.error('상품 목록을 불러오는데 실패했습니다');
+    } finally {
       setIsLoading(false);
-    } 
+    }
   };
 
   const fetchProductAndOptions = async (productId: string) => {
     setIsLoading(true);
     try {
-      // Mock Data
-      setTimeout(() => {
-          const product = MOCK_PRODUCTS.find(p => p.id === productId);
-          if(product) setSelectedProduct(product);
-          setOptions(MOCK_OPTIONS);
-          setStep('size');
-          setIsLoading(false);
-      }, 500);
+      const [productRes, optionsRes] = await Promise.all([
+        productsApi.getById(productId),
+        productsApi.getOptions(productId),
+      ]);
+      
+      const product = productRes.data?.data || productRes.data;
+      setSelectedProduct(product);
+      
+      const optionData = optionsRes.data?.data || optionsRes.data || [];
+      setOptions(Array.isArray(optionData) ? optionData : []);
+      
+      setStep('size');
     } catch (error) {
       toast.error('상품 정보를 불러오는데 실패했습니다');
       navigate('/sell');
+    } finally {
       setIsLoading(false);
-    } 
+    }
   };
 
   const fetchOptions = async (productId: string) => {
     setIsLoading(true);
     try {
-      // Mock Data
-      setTimeout(() => {
-          setOptions(MOCK_OPTIONS);
-          setIsLoading(false);
-      }, 300);
+      const response = await productsApi.getOptions(productId);
+      const optionData = response.data?.data || response.data || [];
+      setOptions(Array.isArray(optionData) ? optionData : []);
     } catch (error) {
       toast.error('옵션 목록을 불러오는데 실패했습니다');
+    } finally {
       setIsLoading(false);
-    } 
+    }
   };
 
   const handleBrandSelect = (brand: Brand) => {
@@ -161,26 +135,16 @@ export function SellPage() {
 
     setIsLoading(true);
     try {
-      // Mock Submit
-      setTimeout(() => {
-          setIsLoading(false);
-          setStep('complete');
-      }, 1000);
-
-      /*
       await sellingBidsApi.create({
         productOptionId: selectedOption.id,
         price: priceNum,
       });
       setStep('complete');
-      */
     } catch (error: any) {
-      /*
       const message = error.response?.data?.message || '판매 등록에 실패했습니다';
       toast.error(message);
-      */
     } finally {
-      // setIsLoading(false);
+      setIsLoading(false);
     }
   };
 
