@@ -219,7 +219,7 @@ export function BrandManagementPage() {
              </div>
              <h3 className="text-lg font-semibold text-gray-900">브랜드 목록을 표시할 수 없습니다</h3>
              <p className="text-gray-500 mt-1 mb-6 max-w-xl">
-               API 명세서(api-spec.json)에 브랜드 목록 조회(GET) 엔드포인트가 정의되지 않았습니다.<br/>
+               API 명세서에 브랜드 목록 조회(GET) 엔드포인트가 정의되지 않았습니다.<br/>
                하지만 브랜드 등록(POST)은 가능합니다.
              </p>
              <Button onClick={openCreateDialog} variant="outline">
