@@ -12,7 +12,7 @@ export interface SortObject {
 }
 
 export interface PageableObject {
-  paged: boolean; 
+  paged: boolean;
   pageNumber: number; // 0-based index
   pageSize: number;
   sort: SortObject;
@@ -48,27 +48,19 @@ export interface Brand {
 
 export interface ProductOption {
   id: string;
-  size: string;
+  productOptionName: string; // Corresponds to 'size' visually
   lowestPrice?: number;
-  lowestBidId?: string;
-  productId?: string;
-  productOptionName: string;
-  stockQuantity?: number;
 }
 
 export interface Product {
   id: string;
   name: string;
-  nameKo: string;
   modelNumber: string;
-  releaseDate?: string;
-  releasePrice?: number;
   imageUrl: string;
-  brand?: Brand;
   brandId?: string;
   brandName?: string;
+  category?: string;
   lowestPrice?: number;
-  options?: ProductOption[];
 }
 
 export interface SellingBid {

@@ -148,10 +148,10 @@ export function SalesPage() {
                         to={`/products/${bid.product?.id}`}
                         className="font-medium hover:underline line-clamp-1"
                       >
-                        {bid.product?.nameKo || bid.product?.name}
+                        {bid.product?.name}
                       </Link>
                       <p className="text-sm text-muted-foreground">
-                        {bid.productOption?.size} · {formatDate(bid.createdAt)}
+                        {bid.productOption?.productOptionName} · {formatDate(bid.createdAt)}
                       </p>
                       <p className="font-bold mt-1">{formatPrice(bid.price)}원</p>
                     </div>
@@ -189,10 +189,10 @@ export function SalesPage() {
                         </Badge>
                       </div>
                       <p className="font-medium line-clamp-1">
-                        {order.product?.nameKo || order.product?.name}
+                        {order.product?.name}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        {order.productOption?.size} · {formatDate(order.createdAt)}
+                        {order.productOption?.productOptionName} · {formatDate(order.createdAt)}
                       </p>
                       <p className="font-bold mt-1">{formatPrice(order.price)}원</p>
                     </div>

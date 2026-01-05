@@ -172,14 +172,14 @@ export function OrderInspectionPage() {
                   <TableCell>
                     <div className="flex flex-col max-w-[200px]">
                       <span className="font-semibold text-gray-900 line-clamp-1">
-                        {order.product?.nameKo || order.product?.name}
+                        {order.product?.name}
                       </span>
                       <span className="text-xs text-gray-500 mt-0.5 line-clamp-1">
                         {order.product?.modelNumber}
                       </span>
                     </div>
                   </TableCell>
-                  <TableCell className="font-medium text-gray-700">{order.productOption?.size}</TableCell>
+                  <TableCell className="font-medium text-gray-700">{order.productOption?.productOptionName}</TableCell>
                   <TableCell className="font-medium">{formatPrice(order.price)}원</TableCell>
                   <TableCell>
                     <Badge variant="outline" className={`${getStatusVariant(order.status)} border rounded-full px-3 py-0.5 font-normal`}>
@@ -234,7 +234,7 @@ export function OrderInspectionPage() {
                     {selectedOrder.product?.name}
                   </div>
                   <div className="text-sm text-gray-500 mt-1">
-                    {selectedOrder.productOption?.size} · {formatPrice(selectedOrder.price)}원
+                    {selectedOrder.productOption?.productOptionName} · {formatPrice(selectedOrder.price)}원
                   </div>
                   <Badge variant="outline" className={`mt-2 ${getStatusVariant(selectedOrder.status)} border rounded-full px-3 py-0.5 font-normal`}>
                       {ORDER_STATUS_MAP[selectedOrder.status]}

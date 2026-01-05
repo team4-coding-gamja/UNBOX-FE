@@ -225,7 +225,6 @@ export function SellPage() {
   );
 
   const filteredProducts = products.filter(p => 
-    (p.nameKo || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
     (p.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
     (p.modelNumber || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -330,7 +329,6 @@ export function SellPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-bold text-base truncate text-black mb-0.5">{product.name}</p>
-                    <p className="text-sm text-gray-500 truncate mb-1">{product.nameKo}</p>
                     <p className="text-xs text-gray-400 font-bold">{product.modelNumber}</p>
                   </div>
                 </button>
@@ -393,7 +391,7 @@ export function SellPage() {
               <div className="flex-1 min-w-0">
                  <div className="flex items-center gap-2 mb-1">
                    <p className="font-bold text-sm truncate text-black">{selectedProduct.name}</p>
-                   <span className="px-2 py-0.5 bg-black text-white text-[10px] font-bold rounded-sm whitespace-nowrap">{selectedOption?.size}</span>
+                   <span className="px-2 py-0.5 bg-black text-white text-[10px] font-bold rounded-sm whitespace-nowrap">{selectedOption?.productOptionName}</span>
                  </div>
                 <p className="text-xs text-gray-400 truncate font-medium">{selectedProduct.modelNumber}</p>
               </div>

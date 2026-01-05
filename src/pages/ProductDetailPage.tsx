@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Heart, ChevronDown } from 'lucide-react';
-import { productsApi, wishlistApi, reviewsApi } from '@/lib/api';
-import { Product, ProductOption, Review } from '@/types';
+import { productsApi, wishlistApi, reviewsApi, sellingBidsApi } from '@/lib/api';
+import { Product, ProductOption, Review, SellingBid } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
@@ -90,20 +90,28 @@ export function ProductDetailPage() {
     }
   };
 
-  const handleBuyNow = () => {
+  const handleBuyNow = async () => {
     if (!isAuthenticated) {
       toast.error('로그인이 필요합니다');
       navigate('/auth/login');
       return;
     }
-
+    
     if (!selectedOption) {
-      toast.error('사이즈를 선택해주세요');
-      // Scroll to size selector or open it if it was a modal
-      return;
+        toast.error('사이즈를 선택해주세요');
+        return;
     }
 
-    navigate(`/buy/${id}?optionId=${selectedOption.id}`);
+    if (!selectedOption.lowestPrice) {
+        toast.info('입찰 대기 중인 상품입니다.');
+        return;
+    }
+
+    try {
+        navigate(`/buy/${id}?optionId=${selectedOption.id}`);
+    } catch (error) {
+        navigate(`/buy/${id}?optionId=${selectedOption.id}`);
+    }
   };
 
   const handleSell = () => {
@@ -169,12 +177,9 @@ export function ProductDetailPage() {
           {/* Brand & Titles */}
           <div className="mb-6">
              <a href="#" className="font-bold text-black border-b-2 border-black inline-block leading-tight mb-2 hover:opacity-70 transition-opacity">
-               {product.brand?.name}
+               {product.brandName}
              </a>
-             <h1 className="text-3xl font-medium text-black mb-1 leading-tight tracking-tight">{product.nameKo || product.name}</h1>
-             {product.name !== product.nameKo && (
-                <p className="text-sm text-gray-400 font-medium">{product.name}</p>
-             )}
+             <h1 className="text-3xl font-medium text-black mb-1 leading-tight tracking-tight">{product.name}</h1>
           </div>
 
           {/* Size Selector */}
@@ -271,14 +276,6 @@ export function ProductDetailPage() {
                 <div className="grid grid-cols-[100px_1fr] py-4">
                     <span className="text-sm text-gray-400">모델번호</span>
                     <span className="text-sm font-medium text-black">{product.modelNumber}</span>
-                </div>
-                <div className="grid grid-cols-[100px_1fr] py-4">
-                    <span className="text-sm text-gray-400">출시일</span>
-                    <span className="text-sm font-medium text-black">{product.releaseDate}</span>
-                </div>
-                <div className="grid grid-cols-[100px_1fr] py-4">
-                    <span className="text-sm text-gray-400">발매가</span>
-                    <span className="text-sm font-medium text-black">{formatPrice(product.releasePrice)}원</span>
                 </div>
             </div>
           </div>

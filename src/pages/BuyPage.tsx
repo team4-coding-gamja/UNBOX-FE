@@ -75,7 +75,7 @@ export function BuyPage() {
         if (option) {
           setSelectedOption(option);
           // For now, assume sellingBidId is part of the option or we'll handle it later
-          setSellingBidId(option.lowestBidId || preselectedOptionId);
+          setSellingBidId(option.id);
         }
       }
     } catch (error) {
@@ -92,7 +92,8 @@ export function BuyPage() {
       return;
     }
     setSelectedOption(option);
-    setSellingBidId(option.lowestBidId || option.id);
+    // As per new spec, lowestBidId is not available. Using option.id as fallback placeholder
+    setSellingBidId(option.id);
     setStep('shipping');
   };
 
@@ -210,11 +211,11 @@ export function BuyPage() {
             />
           </div>
           <div className="flex-1">
-            <p className="font-bold text-black mb-1">{product.nameKo || product.name}</p>
+            <p className="font-bold text-black mb-1">{product.name}</p>
             <p className="text-xs text-gray-500 font-medium mb-2">{product.modelNumber}</p>
             {selectedOption && (
                <div className="inline-flex items-center px-2 py-0.5 rounded-sm bg-black text-white text-xs font-bold">
-                  {selectedOption.size}
+                  {selectedOption.productOptionName}
                </div>
             )}
           </div>
@@ -243,7 +244,7 @@ export function BuyPage() {
                     : 'border-gray-100 opacity-40 cursor-not-allowed bg-gray-50'
                 )}
               >
-                <p className="font-bold text-lg">{option.size}</p>
+                <p className="font-bold text-lg">{option.productOptionName}</p>
                 <p className="text-xs font-bold text-[#ef6253]">
                   {option.lowestPrice ? `${formatPrice(option.lowestPrice)}원` : '품절'}
                 </p>

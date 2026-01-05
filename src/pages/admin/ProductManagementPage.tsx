@@ -155,11 +155,20 @@ export function ProductManagementPage() {
      // implementation kept for reference but UI won't reach here
   };
 
-  const openOptionDialog = (product: Product) => {
+  const openOptionDialog = async (product: Product) => {
     setSelectedProduct(product);
-    setProductOptions(product.options || []);
+    setProductOptions([]); // Clear previous options
     setNewSize('');
     setOptionDialogOpen(true);
+    
+    // Fetch options
+    try {
+        const response = await productsApi.getOptions(product.id);
+        const optionsData = response.data?.data || response.data || [];
+        setProductOptions(Array.isArray(optionsData) ? optionsData : []);
+    } catch (e) {
+        toast.error('옵션 정보를 불러오는데 실패했습니다');
+    }
   };
 
   const onSubmit = async (data: ProductFormData) => {
@@ -215,16 +224,11 @@ export function ProductManagementPage() {
       toast.success('사이즈가 추가되었습니다');
       setNewSize('');
       
-      // Reload products to update options
-      const productsRes = await productsApi.getAll({ size: 100 });
-      const productsData = productsRes.data?.data?.content || productsRes.data?.content || productsRes.data || [];
-      setProducts(Array.isArray(productsData) ? productsData : []);
+      // Reload options
+      const response = await productsApi.getOptions(selectedProduct.id);
+      const optionsData = response.data?.data || response.data || [];
+      setProductOptions(Array.isArray(optionsData) ? optionsData : []);
 
-      // Update local options state
-      const updatedProduct = productsData.find((p: Product) => p.id === selectedProduct.id);
-      if (updatedProduct) {
-        setProductOptions(updatedProduct.options || []);
-      }
     } catch (error: any) {
       toast.error('사이즈 추가에 실패했습니다. (중복 등)');
     } finally {
@@ -294,7 +298,6 @@ export function ProductManagementPage() {
                   <TableCell>
                     <div className="flex flex-col">
                         <span className="font-semibold text-gray-900">{product.name}</span>
-                        {product.nameKo && <span className="text-xs text-gray-500 mt-0.5">{product.nameKo}</span>}
                     </div>
                   </TableCell>
                   <TableCell>
@@ -429,7 +432,7 @@ export function ProductManagementPage() {
 
           {selectedProduct && (
             <div className="text-sm font-medium text-gray-900 mb-4 bg-gray-50 p-3 rounded-lg">
-              {selectedProduct.name} {selectedProduct.nameKo && `(${selectedProduct.nameKo})`}
+              {selectedProduct.name}
             </div>
           )}
 
@@ -452,7 +455,7 @@ export function ProductManagementPage() {
                 className="flex items-center gap-1.5 px-3 py-1 text-sm bg-white border border-gray-200 shadow-sm hover:bg-gray-50 h-auto"
               >
                 <div className="flex flex-col items-start leading-none gap-1 py-1">
-                   <span className="font-medium">{option.size}</span>
+                   <span className="font-medium">{option.productOptionName}</span>
                    {option.lowestPrice ? (
                       <span className="text-[10px] text-red-600 font-medium">{new Intl.NumberFormat('ko-KR').format(option.lowestPrice)}원</span>
                    ) : (
