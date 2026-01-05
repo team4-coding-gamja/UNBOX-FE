@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { adminProductsApi, adminBrandsApi, productsApi } from '@/lib/api';
 import { Product, Brand, ProductOption } from '@/types';
 import { Button } from '@/components/ui/button';
@@ -58,9 +58,12 @@ export function ProductManagementPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
   const location = useLocation();
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [missingBrandAlertOpen, setMissingBrandAlertOpen] = useState(false);
+  const [targetBrandName, setTargetBrandName] = useState('');
   const [optionDialogOpen, setOptionDialogOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [productOptions, setProductOptions] = useState<ProductOption[]>([]);
@@ -115,14 +118,20 @@ export function ProductManagementPage() {
             b.name.toLowerCase() === initialBrandName?.toLowerCase()
         );
 
-        setSelectedProduct(null);
-        reset({
-            brandId: matchedBrand?.id || '',
-            name: initialName || '',
-            modelNumber: '',
-            imageUrl: '',
-        });
-        setDialogOpen(true);
+        if (matchedBrand) {
+            setSelectedProduct(null);
+            reset({
+                brandId: matchedBrand.id || '',
+                name: initialName || '',
+                modelNumber: '',
+                imageUrl: '',
+            });
+            setDialogOpen(true);
+        } else if (initialBrandName) {
+            // Brand not found
+            setTargetBrandName(initialBrandName);
+            setMissingBrandAlertOpen(true);
+        }
         
         // Optional: clear state to prevent reopening on generic refresh, 
         // but explicit navigation usually clears or we just ignore duplicate actions
@@ -492,6 +501,35 @@ export function ProductManagementPage() {
             >
               {isSubmitting ? '삭제 중...' : '삭제'}
             </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Missing Brand Dialog */}
+      <AlertDialog open={missingBrandAlertOpen} onOpenChange={setMissingBrandAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>브랜드가 존재하지 않습니다</AlertDialogTitle>
+            <AlertDialogDescription>
+              <span className="font-semibold text-black">{targetBrandName}</span> 브랜드를 찾을 수 없습니다.<br />
+              브랜드 목록 관리에 해당 브랜드를 추가하시겠습니까?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+             <AlertDialogCancel>취소</AlertDialogCancel>
+             <AlertDialogAction
+               onClick={() => {
+                   navigate('/admin/brands', { 
+                       state: { 
+                           createBrand: true, 
+                           initialName: targetBrandName 
+                        } 
+                    });
+               }}
+               className="bg-black text-white hover:bg-gray-800"
+             >
+               브랜드 추가하기
+             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

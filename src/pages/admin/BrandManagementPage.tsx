@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { adminBrandsApi } from '@/lib/api';
 import { Brand } from '@/types';
 import { Button } from '@/components/ui/button';
@@ -45,6 +46,7 @@ type BrandFormData = z.infer<typeof brandSchema>;
 
 export function BrandManagementPage() {
   const [brands, setBrands] = useState<Brand[]>([]);
+  const location = useLocation();
   const [isLoading, setIsLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -61,22 +63,32 @@ export function BrandManagementPage() {
   });
 
   useEffect(() => {
-    // API Spec does not define GET /api/admin/brands, so we cannot fetch the list.
-    // fetchBrands(); 
+    fetchBrands(); 
     setIsLoading(false);
   }, []);
 
+  useEffect(() => {
+    if (location.state?.createBrand && !dialogOpen) {
+        setSelectedBrand(null);
+        reset({
+            name: location.state.initialName || '',
+            logoUrl: '' 
+        });
+        setDialogOpen(true);
+        window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
+
   const fetchBrands = async () => {
-    // API Spec does not define GET /api/admin/brands.
-    // try {
-    //   const response = await adminBrandsApi.getAll();
-    //   const data = response.data?.data || response.data || [];
-    //   setBrands(Array.isArray(data) ? data : []);
-    // } catch (error) {
-    //   toast.error('브랜드 목록을 불러오는데 실패했습니다');
-    // } finally {
-    //   setIsLoading(false);
-    // }
+    try {
+      const response = await adminBrandsApi.getAll();
+      const data = response.data?.data || response.data || [];
+      setBrands(Array.isArray(data) ? data : []);
+    } catch (error) {
+      toast.error('브랜드 목록을 불러오는데 실패했습니다');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const openCreateDialog = () => {

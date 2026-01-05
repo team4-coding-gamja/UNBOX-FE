@@ -99,7 +99,7 @@ export const productsApi = {
 
 // Brands API
 export const brandsApi = {
-  getAll: () => api.get('/api/brands'),
+  getAll: () => api.get('/api/products/brands'),
 };
 
 // Selling Bids API
@@ -141,7 +141,7 @@ export const wishlistApi = {
 
 // Admin APIs
 export const adminBrandsApi = {
-  getAll: () => api.get('/api/admin/brands'),
+  getAll: () => api.get('/api/products/brands'),
   create: (data: { name: string; logoUrl: string }) =>
     api.post('/api/admin/brands', data),
   update: (brandId: string, data: { name: string; logoUrl: string }) =>
