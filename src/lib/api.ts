@@ -104,10 +104,10 @@ export const brandsApi = {
 
 // Selling Bids API
 export const sellingBidsApi = {
-  create: (data: { productOptionId: string; price: number }) =>
+  create: (data: { optionId: string; price: number; userId: number }) =>
     api.post('/api/bids/selling', data),
   getMine: (params?: { page?: number; size?: number }) =>
-    api.get('/api/bids/selling/me', { params }),
+    api.get('/api/bids/selling/my', { params }),
 };
 
 // Orders API

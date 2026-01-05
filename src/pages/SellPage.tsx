@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
 
 
 type Step = 'brand' | 'product' | 'size' | 'price' | 'complete';
@@ -17,6 +18,7 @@ export function SellPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const preselectedProductId = searchParams.get('productId');
+  const { user } = useAuth();
 
   const [step, setStep] = useState<Step>(preselectedProductId ? 'size' : 'brand');
   const [brands, setBrands] = useState<Brand[]>([]);
@@ -135,9 +137,15 @@ export function SellPage() {
 
     setIsLoading(true);
     try {
+      if (!user) {
+        toast.error('로그인이 필요합니다');
+        return;
+      }
+      
       await sellingBidsApi.create({
-        productOptionId: selectedOption.id,
+        optionId: selectedOption.id,
         price: priceNum,
+        userId: Number(user.id),
       });
       setStep('complete');
     } catch (error: any) {
