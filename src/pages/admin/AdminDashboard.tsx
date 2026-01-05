@@ -1,6 +1,6 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { ADMIN_ROLE_MAP } from '@/types';
-import { Users, Package, ClipboardCheck, Tags, ChevronRight, BarChart3, UserCircle } from 'lucide-react';
+import { Users, Package, ClipboardCheck, Tags, ChevronRight, BarChart3, UserCircle, Inbox } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export function AdminDashboard() {
@@ -22,6 +22,14 @@ export function AdminDashboard() {
       roles: ['ROLE_MASTER', 'ROLE_MANAGER'],
       path: '/admin/users',
       color: 'bg-orange-500/10 text-orange-600'
+    },
+    { 
+      label: '상품 요청', 
+      desc: '사용자로부터 접수된 상품 등록 요청을 관리합니다.',
+      icon: Inbox, 
+      roles: ['ROLE_MASTER', 'ROLE_MANAGER'],
+      path: '/admin/product-requests',
+      color: 'bg-pink-500/10 text-pink-600'
     },
     { 
       label: '브랜드 관리', 

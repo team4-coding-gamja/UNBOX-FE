@@ -104,11 +104,6 @@ export function HomePage() {
                 한정판 스니커즈부터 럭셔리 아이템까지,<br />
                 검증된 정품을 안전하게 거래하세요.
               </p>
-              <div className="flex justify-center md:justify-start pt-4">
-                <Button size="lg" className="rounded-full px-10 h-14 text-lg font-bold bg-black text-white hover:bg-gray-800 transition-all">
-                  앱 설치하기
-                </Button>
-              </div>
             </div>
             {/* Visual element */}
              <div className="absolute right-0 top-0 bottom-0 w-1/2 opacity-10 pointer-events-none md:opacity-100 md:relative md:w-auto md:flex-1 flex justify-center items-center">
@@ -148,7 +143,7 @@ export function HomePage() {
                     : 'bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-black'
                 }`}
               >
-                {brand.nameKo || brand.name}
+                {brand.name}
               </Button>
             ))}
           </div>

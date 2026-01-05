@@ -9,7 +9,8 @@ import {
   LogOut,
   Menu,
   X,
-  UserCircle
+  UserCircle,
+  Inbox
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -41,6 +42,12 @@ const menuItems: MenuItem[] = [
     path: '/admin/users',
     label: '회원 관리',
     icon: UserCircle,
+    roles: ['ROLE_MASTER', 'ROLE_MANAGER']
+  },
+  {
+    path: '/admin/product-requests',
+    label: '상품 요청',
+    icon: Inbox,
     roles: ['ROLE_MASTER', 'ROLE_MANAGER']
   },
   { 

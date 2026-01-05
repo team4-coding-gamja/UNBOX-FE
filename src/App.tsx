@@ -36,6 +36,7 @@ import { BrandManagementPage } from "@/pages/admin/BrandManagementPage";
 import { ProductManagementPage } from "@/pages/admin/ProductManagementPage";
 import { OrderInspectionPage } from "@/pages/admin/OrderInspectionPage";
 import { UserManagementPage } from "@/pages/admin/UserManagementPage";
+import { ProductRequestManagementPage } from "@/pages/admin/ProductRequestManagementPage";
 
 const queryClient = new QueryClient();
 
@@ -109,6 +110,7 @@ const App = () => (
                 <Route index element={<AdminDashboard />} />
                 <Route path="staff" element={<StaffManagementPage />} />
                 <Route path="users" element={<UserManagementPage />} />
+                <Route path="product-requests" element={<ProductRequestManagementPage />} />
                 <Route path="brands" element={<BrandManagementPage />} />
                 <Route path="products" element={<ProductManagementPage />} />
                 <Route path="orders" element={<OrderInspectionPage />} />

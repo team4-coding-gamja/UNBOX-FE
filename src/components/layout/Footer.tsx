@@ -1,6 +1,10 @@
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { ProductRequestDialog } from '../product/ProductRequestDialog';
 
 export function Footer() {
+  const [requestDialogOpen, setRequestDialogOpen] = useState(false);
+
   return (
     <footer className="bg-white border-t border-gray-100 mt-auto">
       <div className="container mx-auto px-4 py-16">
@@ -53,6 +57,14 @@ export function Footer() {
                   문의하기
                 </Link>
               </li>
+              <li>
+                <button 
+                    onClick={() => setRequestDialogOpen(true)}
+                    className="hover:text-black transition-colors text-left"
+                >
+                  상품 등록 요청
+                </button>
+              </li>
             </ul>
           </div>
 
@@ -88,6 +100,11 @@ export function Footer() {
           </div>
         </div>
       </div>
+      
+      <ProductRequestDialog 
+        open={requestDialogOpen} 
+        onOpenChange={setRequestDialogOpen} 
+      />
     </footer>
   );
 }

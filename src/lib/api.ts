@@ -196,3 +196,14 @@ export const adminUsersApi = {
     api.patch(`/api/admin/users/${userId}`, data),
   delete: (userId: number) => api.delete(`/api/admin/users/${userId}`),
 };
+
+export const productRequestsApi = {
+  create: (data: { name: string; brandName: string }) => api.post('/api/products/requests', data),
+};
+
+export const adminProductRequestsApi = {
+  getAll: (params?: { page?: number; size?: number }) =>
+    api.get('/api/admin/product-requests', { params }),
+  updateStatus: (id: string, status: 'APPROVED' | 'REJECTED') =>
+    api.patch(`/api/admin/product-requests/${id}/status`, { status }),
+};

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { adminProductsApi, adminBrandsApi, productsApi } from '@/lib/api';
 import { Product, Brand, ProductOption } from '@/types';
 import { Button } from '@/components/ui/button';
@@ -56,6 +57,7 @@ type ProductFormData = z.infer<typeof productSchema>;
 export function ProductManagementPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
+  const location = useLocation();
   const [isLoading, setIsLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -103,6 +105,30 @@ export function ProductManagementPage() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (location.state?.createProduct && brands.length > 0 && !dialogOpen) {
+        const { initialName, initialBrandName } = location.state;
+        
+        // Find brand ID by name (insensitive search)
+        const matchedBrand = brands.find(b => 
+            b.name.toLowerCase() === initialBrandName?.toLowerCase()
+        );
+
+        setSelectedProduct(null);
+        reset({
+            brandId: matchedBrand?.id || '',
+            name: initialName || '',
+            modelNumber: '',
+            imageUrl: '',
+        });
+        setDialogOpen(true);
+        
+        // Optional: clear state to prevent reopening on generic refresh, 
+        // but explicit navigation usually clears or we just ignore duplicate actions
+        window.history.replaceState({}, document.title);
+    }
+  }, [brands, location.state]);
 
   const openCreateDialog = () => {
     setSelectedProduct(null);
