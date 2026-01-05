@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { adminProductsApi, adminBrandsApi } from '@/lib/api';
+import { adminProductsApi, adminBrandsApi, productsApi } from '@/lib/api';
 import { Product, Brand, ProductOption } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -77,21 +77,30 @@ export function ProductManagementPage() {
   });
 
   useEffect(() => {
-    // API Spec does not define GET /api/admin/products or GET /api/admin/brands.
-    // We attempt to fetch brands anyway in case it works, or fail gracefully.
-    fetchBrands(); 
-    setIsLoading(false);
+    fetchData();
   }, []);
 
-  const fetchBrands = async () => {
+  const fetchData = async () => {
+    setIsLoading(true);
     try {
-      // Trying to fetch brands. If spec doesn't implement it, this might fail or return empty.
-      const brandsRes = await adminBrandsApi.getAll();
-      const brandsData = brandsRes.data?.data || brandsRes.data || [];
-      setBrands(Array.isArray(brandsData) ? brandsData : []);
+      // Use public API for listing products as User requested workaround
+      const productsRes = await productsApi.getAll({ size: 100 }); 
+      const productsData = productsRes.data?.data?.content || productsRes.data?.content || productsRes.data || [];
+      setProducts(Array.isArray(productsData) ? productsData : []);
+
+      // Try to fetch brands relative to Admin API availability
+      try {
+        const brandsRes = await adminBrandsApi.getAll();
+        const brandsData = brandsRes.data?.data || brandsRes.data || [];
+        setBrands(Array.isArray(brandsData) ? brandsData : []);
+      } catch (e) {
+        // console.log("brands fetch failed");
+      }
     } catch (error) {
-      // console.error(error); // Expected if endpoint missing
-      setBrands([]);
+      // console.error(error);
+      toast.error('데이터를 불러오는데 실패했습니다');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -111,6 +120,13 @@ export function ProductManagementPage() {
      // implementation kept for reference but UI won't reach here
   };
 
+  const openOptionDialog = (product: Product) => {
+    setSelectedProduct(product);
+    setProductOptions(product.options || []);
+    setNewSize('');
+    setOptionDialogOpen(true);
+  };
+
   const onSubmit = async (data: ProductFormData) => {
     setIsSubmitting(true);
     try {
@@ -128,7 +144,7 @@ export function ProductManagementPage() {
       }
       setDialogOpen(false);
       reset();
-      // No fetch data
+      fetchData();
     } catch (error: any) {
       const message = error.response?.data?.message || '상품 저장에 실패했습니다';
       toast.error(message);
@@ -138,15 +154,59 @@ export function ProductManagementPage() {
   };
 
   const handleDelete = async () => {
-    // Delete not reachable
+    if (!selectedProduct) return;
+    setIsSubmitting(true);
+    try {
+      await adminProductsApi.delete(selectedProduct.id);
+      toast.success('상품이 삭제되었습니다');
+      setDeleteDialogOpen(false);
+      setSelectedProduct(null);
+      fetchData();
+    } catch (error: any) {
+      toast.error('상품 삭제에 실패했습니다');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleAddOption = async () => {
-     // Option mgmt not reachable
+    if (!selectedProduct || !newSize.trim()) {
+      toast.error('사이즈를 입력해주세요');
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      await adminProductsApi.createOption(selectedProduct.id, { size: newSize.trim() });
+      toast.success('사이즈가 추가되었습니다');
+      setNewSize('');
+      
+      // Reload products to update options
+      const productsRes = await productsApi.getAll({ size: 100 });
+      const productsData = productsRes.data?.data?.content || productsRes.data?.content || productsRes.data || [];
+      setProducts(Array.isArray(productsData) ? productsData : []);
+
+      // Update local options state
+      const updatedProduct = productsData.find((p: Product) => p.id === selectedProduct.id);
+      if (updatedProduct) {
+        setProductOptions(updatedProduct.options || []);
+      }
+    } catch (error: any) {
+      toast.error('사이즈 추가에 실패했습니다. (중복 등)');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleDeleteOption = async (optionId: string) => {
-    // Option mgmt not reachable
+    if (!selectedProduct) return;
+    try {
+      await adminProductsApi.deleteOption(selectedProduct.id, optionId);
+      setProductOptions((prev) => prev.filter((o) => o.id !== optionId));
+      toast.success('사이즈가 삭제되었습니다');
+      fetchData();
+    } catch (error: any) {
+      toast.error('사이즈 삭제에 실패했습니다');
+    }
   };
 
   if (isLoading) {
@@ -172,19 +232,85 @@ export function ProductManagementPage() {
       </div>
 
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        {products.length > 0 ? (
+          <Table>
+            <TableHeader className="bg-gray-50/50">
+              <TableRow className="border-gray-100 hover:bg-transparent">
+                <TableHead className="py-4 pl-6 text-xs font-semibold uppercase text-gray-500 w-[100px]">Image</TableHead>
+                <TableHead className="py-4 text-xs font-semibold uppercase text-gray-500">Product Info</TableHead>
+                <TableHead className="py-4 text-xs font-semibold uppercase text-gray-500">Brand</TableHead>
+                <TableHead className="py-4 text-xs font-semibold uppercase text-gray-500">Model No.</TableHead>
+                <TableHead className="py-4 text-xs font-semibold uppercase text-gray-500">Lowest Price</TableHead>
+                <TableHead className="w-32"></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {products.map((product) => (
+                <TableRow key={product.id} className="border-gray-50 hover:bg-gray-50/50 transition-colors">
+                  <TableCell className="pl-6 py-4">
+                    <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
+                      <img
+                        src={product.imageUrl || '/placeholder.svg'}
+                        alt={product.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-col">
+                        <span className="font-semibold text-gray-900">{product.name}</span>
+                        {product.nameKo && <span className="text-xs text-gray-500 mt-0.5">{product.nameKo}</span>}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="secondary" className="bg-gray-100 text-gray-700 hover:bg-gray-200">
+                        {product.brand?.name}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="font-mono text-sm text-gray-600">{product.modelNumber}</TableCell>
+                  <TableCell className="font-medium">
+                    {product.lowestPrice ? `${new Intl.NumberFormat('ko-KR').format(product.lowestPrice)}원` : '-'}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex gap-1 justify-end pr-4">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-full"
+                        onClick={() => openOptionDialog(product)}
+                        title="사이즈 및 가격 확인"
+                      >
+                        <Settings className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full"
+                        onClick={() => {
+                          setSelectedProduct(product);
+                          setDeleteDialogOpen(true);
+                        }}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        ) : (
           <div className="flex flex-col items-center justify-center py-24 text-center">
              <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
                  <Package className="h-8 w-8 text-gray-400" />
              </div>
-             <h3 className="text-lg font-semibold text-gray-900">상품 목록을 표시할 수 없습니다</h3>
-             <p className="text-gray-500 mt-1 mb-6 max-w-xl">
-               API 명세서에 상품 목록 조회(GET) 엔드포인트가 정의되지 않았습니다.<br/>
-               하지만 상품 등록(POST)은 가능합니다. (브랜드 목록이 있어야 가능합니다)
-             </p>
+             <h3 className="text-lg font-semibold text-gray-900">등록된 상품이 없습니다</h3>
+             <p className="text-gray-500 mt-1 mb-6 max-w-sm">새로운 상품을 등록하고 판매를 시작하세요.</p>
              <Button onClick={openCreateDialog} variant="outline">
                 상품 추가하기
              </Button>
           </div>
+        )}
       </div>
 
       {/* Create Dialog */}
@@ -258,6 +384,91 @@ export function ProductManagementPage() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Option Dialog */}
+      <Dialog open={optionDialogOpen} onOpenChange={setOptionDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>사이즈 관리</DialogTitle>
+          </DialogHeader>
+
+          {selectedProduct && (
+            <div className="text-sm font-medium text-gray-900 mb-4 bg-gray-50 p-3 rounded-lg">
+              {selectedProduct.name} {selectedProduct.nameKo && `(${selectedProduct.nameKo})`}
+            </div>
+          )}
+
+          <div className="flex gap-2 mb-4">
+            <Input
+              value={newSize}
+              onChange={(e) => setNewSize(e.target.value)}
+              placeholder="새 사이즈 (예: 270)"
+            />
+            <Button onClick={handleAddOption} disabled={isSubmitting} className="bg-black text-white px-6">
+              추가
+            </Button>
+          </div>
+
+          <div className="flex flex-wrap gap-2 min-h-[100px] content-start">
+            {productOptions.map((option) => (
+              <Badge
+                key={option.id}
+                variant="secondary"
+                className="flex items-center gap-1.5 px-3 py-1 text-sm bg-white border border-gray-200 shadow-sm hover:bg-gray-50 h-auto"
+              >
+                <div className="flex flex-col items-start leading-none gap-1 py-1">
+                   <span className="font-medium">{option.size}</span>
+                   {option.lowestPrice ? (
+                      <span className="text-[10px] text-red-600 font-medium">{new Intl.NumberFormat('ko-KR').format(option.lowestPrice)}원</span>
+                   ) : (
+                      <span className="text-[10px] text-gray-400">-</span>
+                   )}
+                </div>
+                <button
+                  onClick={() => handleDeleteOption(option.id)}
+                  className="ml-2 text-gray-400 hover:text-red-500 rounded-full p-0.5 self-center"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            ))}
+            {productOptions.length === 0 && (
+              <div className="w-full text-center py-8 text-gray-400 text-sm">
+                  등록된 사이즈가 없습니다.
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOptionDialogOpen(false)} className="w-full">
+              닫기
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>상품 삭제</AlertDialogTitle>
+            <AlertDialogDescription>
+              <span className="font-semibold text-black">{selectedProduct?.name}</span> 상품을 삭제하시겠습니까?
+              <br />삭제된 상품은 복구할 수 없습니다.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>취소</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={isSubmitting}
+              className="bg-red-600 text-white hover:bg-red-700"
+            >
+              {isSubmitting ? '삭제 중...' : '삭제'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

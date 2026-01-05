@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Menu, X, Heart, User } from 'lucide-react';
+import { Search, Menu, X, Heart, User, Home, Store } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -32,13 +32,17 @@ export function Header() {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center gap-6">
-             <nav className="flex items-center gap-6 mr-4">
-                <Link to="/" className="text-sm font-bold text-gray-900 hover:text-gray-600 transition-colors">HOME</Link>
-                <Link to="/sell" className="text-sm font-bold text-gray-900 hover:text-gray-600 transition-colors">STYLE</Link>
-                <Link to="#" className="text-sm font-bold text-gray-900 hover:text-gray-600 transition-colors">SHOP</Link>
-             </nav>
-
              <div className="flex items-center gap-3">
+              <Link to="/">
+                  <Button variant="ghost" size="icon" className="text-gray-900 hover:bg-gray-100 transition-colors" title="홈">
+                    <Home className="h-6 w-6" />
+                  </Button>
+                </Link>
+                <Link to="/sell">
+                  <Button variant="ghost" size="icon" className="text-gray-900 hover:bg-gray-100 transition-colors" title="판매">
+                    <Store className="h-6 w-6" />
+                  </Button>
+                </Link>
                 <Button variant="ghost" size="icon" className="text-gray-900 hover:bg-gray-100 transition-colors">
                   <Search className="h-6 w-6" />
                 </Button>
@@ -118,17 +122,23 @@ export function Header() {
             <nav className="flex flex-col gap-4 p-4">
               <Link
                 to="/"
-                className="text-lg font-bold"
+                className="flex items-center gap-3 text-lg font-bold"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                HOME
+                <div className="h-10 w-10 bg-gray-100 rounded-full flex items-center justify-center">
+                   <Home className="h-5 w-5 text-gray-500" />
+                </div>
+                홈
               </Link>
               <Link
                 to="/sell"
-                className="text-lg font-bold"
+                className="flex items-center gap-3 text-lg font-bold"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                STYLE
+                <div className="h-10 w-10 bg-gray-100 rounded-full flex items-center justify-center">
+                   <Store className="h-5 w-5 text-gray-500" />
+                </div>
+                판매
               </Link>
               
               <div className="h-px bg-gray-100 my-2"></div>

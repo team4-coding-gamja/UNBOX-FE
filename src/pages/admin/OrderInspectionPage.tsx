@@ -231,7 +231,7 @@ export function OrderInspectionPage() {
                 </div>
                 <div>
                   <div className="font-bold text-gray-900 line-clamp-1">
-                    {selectedOrder.product?.nameKo || selectedOrder.product?.name}
+                    {selectedOrder.product?.name}
                   </div>
                   <div className="text-sm text-gray-500 mt-1">
                     {selectedOrder.productOption?.size} · {formatPrice(selectedOrder.price)}원
