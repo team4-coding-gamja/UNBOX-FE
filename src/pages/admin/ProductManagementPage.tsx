@@ -176,7 +176,7 @@ export function ProductManagementPage() {
     }
     setIsSubmitting(true);
     try {
-      await adminProductsApi.createOption(selectedProduct.id, { size: newSize.trim() });
+      await adminProductsApi.createOption(selectedProduct.id, { option: newSize.trim() });
       toast.success('사이즈가 추가되었습니다');
       setNewSize('');
       
@@ -264,7 +264,7 @@ export function ProductManagementPage() {
                   </TableCell>
                   <TableCell>
                     <Badge variant="secondary" className="bg-gray-100 text-gray-700 hover:bg-gray-200">
-                        {product.brand?.name}
+                        {product.brandName}
                     </Badge>
                   </TableCell>
                   <TableCell className="font-mono text-sm text-gray-600">{product.modelNumber}</TableCell>

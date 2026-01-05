@@ -152,12 +152,12 @@ export const adminBrandsApi = {
 export const adminProductsApi = {
   getAll: (params?: { brandId?: string; page?: number; size?: number }) =>
     api.get('/api/admin/products', { params }),
-  create: (data: { brandId: string; name: string; nameKo: string; modelNumber: string; releaseDate: string; releasePrice: number; imageUrl: string }) =>
+  create: (data: { brandId: string; name: string; modelNumber: string; category: string; imageUrl: string }) =>
     api.post('/api/admin/products', data),
-  update: (productId: string, data: Partial<{ name: string; nameKo: string; modelNumber: string; releaseDate: string; releasePrice: number; imageUrl: string }>) =>
+  update: (productId: string, data: Partial<{ name: string; modelNumber: string; category: string; imageUrl: string }>) =>
     api.patch(`/api/admin/products/${productId}`, data),
   delete: (productId: string) => api.delete(`/api/admin/products/${productId}`),
-  createOption: (productId: string, data: { size: string }) =>
+  createOption: (productId: string, data: { option: string }) =>
     api.post(`/api/admin/products/${productId}/options`, data),
   deleteOption: (productId: string, optionId: string) =>
     api.delete(`/api/admin/products/${productId}/options/${optionId}`),

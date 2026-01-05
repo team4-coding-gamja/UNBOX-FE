@@ -65,6 +65,7 @@ export interface Product {
   imageUrl: string;
   brand?: Brand;
   brandId?: string;
+  brandName?: string;
   lowestPrice?: number;
   options?: ProductOption[];
 }
