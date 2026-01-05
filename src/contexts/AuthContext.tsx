@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { authApi, adminAuthApi, userApi } from '@/lib/api';
+import { authApi, adminAuthApi, userApi, adminStaffApi } from '@/lib/api';
 
 interface User {
   id: string;
@@ -61,13 +61,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const userType = localStorage.getItem('userType');
       
       if (userType === 'admin') {
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-          setUser(JSON.parse(storedUser));
-        }
+        // 관리자는 /api/admin/staff/me 엔드포인트로 정보 갱신
+        const response = await adminStaffApi.getMe();
+        const adminData = response.data?.data || response.data;
+        setUser(adminData);
+        localStorage.setItem('user', JSON.stringify(adminData));
         return;
       }
 
+      // 일반 유저는 /api/users/me 엔드포인트로 정보 갱신
       const response = await userApi.getMe();
       const userData = response.data?.data || response.data;
       setUser(userData);
@@ -98,12 +100,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('userType', 'admin');
       
-      // For admin, we store role info from the response
-      const adminData = response.data?.data || response.data;
-      if (adminData) {
-        setUser(adminData);
-        localStorage.setItem('user', JSON.stringify(adminData));
-      }
+      // 토큰 저장 후 refreshUser를 통해 서버에서 최신 관리자 정보를 가져옴
+      await refreshUser();
     }
   };
 

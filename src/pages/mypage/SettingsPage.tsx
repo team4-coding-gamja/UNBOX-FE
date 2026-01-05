@@ -25,8 +25,12 @@ import { toast } from 'sonner';
 const profileSchema = z.object({
   nickname: z
     .string()
-    .min(2, '닉네임은 2자 이상이어야 합니다')
-    .max(20, '닉네임은 20자 이하여야 합니다'),
+    .min(4, '닉네임은 4자 이상이어야 합니다')
+    .max(10, '닉네임은 10자 이하여야 합니다')
+    .regex(/^[a-z0-9]+$/, '닉네임은 영문 소문자와 숫자만 사용 가능합니다'),
+  phone: z
+    .string()
+    .optional(),
 });
 
 type ProfileFormData = z.infer<typeof profileSchema>;
@@ -45,13 +49,17 @@ export function SettingsPage() {
     resolver: zodResolver(profileSchema),
     defaultValues: {
       nickname: user?.nickname || '',
+      phone: user?.phone || '',
     },
   });
 
   const onSubmit = async (data: ProfileFormData) => {
     setIsLoading(true);
     try {
-      await userApi.updateMe(data);
+      await userApi.updateMe({
+        nickname: data.nickname,
+        phone: data.phone
+      });
       await refreshUser();
       toast.success('프로필이 수정되었습니다');
     } catch (error: any) {
@@ -99,6 +107,19 @@ export function SettingsPage() {
             />
             {errors.nickname && (
               <p className="text-xs text-destructive">{errors.nickname.message}</p>
+            )}
+            <p className="text-xs text-muted-foreground">영문 소문자, 숫자 포함 4~10자</p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="phone">전화번호</Label>
+            <Input
+              id="phone"
+              {...register('phone')}
+              disabled={isLoading}
+            />
+            {errors.phone && (
+              <p className="text-xs text-destructive">{errors.phone.message}</p>
             )}
           </div>
 

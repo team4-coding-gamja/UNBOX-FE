@@ -164,10 +164,19 @@ export const adminProductsApi = {
 };
 
 export const adminStaffApi = {
-  getAll: (params?: { role?: string; page?: number; size?: number }) =>
+  getMe: () => api.get('/api/admin/staff/me'),
+  getAll: (params?: { page: number; size: number }) =>
     api.get('/api/admin/staff', { params }),
+  getManagers: (params?: { page: number; size: number }) =>
+    api.get('/api/admin/staff/managers', { params }),
+  getInspectors: (params?: { page: number; size: number }) =>
+    api.get('/api/admin/staff/inspectors', { params }),
   create: (data: { email: string; password: string; nickname: string; phone: string; adminRole: string }) =>
     api.post('/api/admin/auth/signup', data),
+  update: (staffId: string, data: { nickname: string; phone: string }) =>
+    api.patch(`/api/admin/staff/${staffId}`, data),
+  updateMe: (data: { nickname: string; phone: string }) =>
+    api.patch('/api/admin/staff/me', data),
   delete: (staffId: string) => api.delete(`/api/admin/staff/${staffId}`),
 };
 

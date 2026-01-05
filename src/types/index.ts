@@ -123,7 +123,6 @@ export interface AdminUser {
   phone: string;
   adminRole: 'ROLE_MASTER' | 'ROLE_MANAGER' | 'ROLE_INSPECTOR';
   status: string;
-  createdAt: string;
 }
 
 export const ORDER_STATUS_MAP: Record<OrderStatus['status'], string> = {

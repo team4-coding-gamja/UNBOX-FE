@@ -27,7 +27,7 @@ export function MyPageHome() {
         setStats([
             { label: '구매 내역', value: ordersRes.data?.data?.totalElements || 0, unit: '건', path: '/mypage/orders' },
             { label: '판매 내역', value: salesRes.data?.data?.totalElements || 0, unit: '건', path: '/mypage/sales' },
-            { label: '관심 상품', value: wishlistRes.data?.data?.length || 0, unit: '개', path: '/mypage/wishlist' },
+            { label: '관심 상품', value: Array.isArray(wishlistRes.data) ? wishlistRes.data.length : (wishlistRes.data?.data?.length || 0), unit: '개', path: '/mypage/wishlist' },
         ]);
       } catch (e) {
         console.error('Failed to fetch dashboard stats', e);

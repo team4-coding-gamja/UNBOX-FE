@@ -58,14 +58,28 @@ export function WishlistPage() {
 
       {wishlist.length > 0 ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {wishlist.map((item) => (
-            <ProductCard
-              key={item.id}
-              product={item.product}
-              isWishlisted={true}
-              onToggleWishlist={() => handleRemove(item.product?.id)}
-            />
-          ))}
+          {wishlist.map((item: any) => {
+             // Adapt flat DTO to Product structure for ProductCard
+             const productData = {
+                 id: item.productId,
+                 name: item.productName,
+                 // Brand info is not in WishlistResponseDTO, might need backend update or separate fetch.
+                 // For now, use a placeholder or check if item.product exists (if API changed to return nested)
+                 brand: { name: 'Brand' }, 
+                 imageUrl: item.imageUrl,
+                 // Price is also missing in WishlistResponseDTO
+                 lowestPrice: item.price || 0 
+             };
+          
+             return (
+                <ProductCard
+                  key={item.wishlistId}
+                  product={productData as any}
+                  isWishlisted={true}
+                  onToggleWishlist={() => handleRemove(item.productId)}
+                />
+            );
+          })}
         </div>
       ) : (
         <div className="text-center py-16">
