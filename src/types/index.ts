@@ -1,3 +1,45 @@
+// Common API Types
+export interface ApiResponse<T> {
+  status: string;
+  message: string;
+  data: T;
+}
+
+export interface SortObject {
+  sorted: boolean;
+  empty: boolean;
+  unsorted: boolean;
+}
+
+export interface PageableObject {
+  paged: boolean; 
+  pageNumber: number; // 0-based index
+  pageSize: number;
+  sort: SortObject;
+  offset: number;
+  unpaged: boolean;
+}
+
+export interface Page<T> {
+  content: T[];
+  pageable: PageableObject;
+  totalPages: number;
+  totalElements: number;
+  last: boolean;
+  first: boolean;
+  size: number;
+  number: number; // 0-based index
+  sort: SortObject;
+  numberOfElements: number;
+  empty: boolean;
+}
+
+export interface Pageable {
+  page: number; // 0-based index
+  size: number;
+  sort?: string[];
+}
+
 export interface Brand {
   id: string;
   name: string;

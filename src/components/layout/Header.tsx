@@ -13,7 +13,7 @@ import {
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, logout, isAdmin } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -43,41 +43,56 @@ export function Header() {
                   <Search className="h-6 w-6" />
                 </Button>
 
-                {isAuthenticated ? (
-                  <>
-                    <Link to="/mypage/wishlist">
-                      <Button variant="ghost" size="icon" className="text-gray-900 hover:bg-gray-100 transition-colors">
-                        <Heart className="h-6 w-6" />
-                      </Button>
-                    </Link>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="text-gray-900 hover:bg-gray-100 transition-colors">
-                          <User className="h-6 w-6" />
+              {isAuthenticated ? (
+                <>
+                  {isAdmin ? (
+                     <div className="flex items-center gap-3">
+                        <Link to="/admin">
+                            <Button variant="ghost" className="font-bold">
+                                관리자 대시보드
+                            </Button>
+                        </Link>
+                         <Button variant="ghost" className="text-red-600 font-bold" onClick={handleLogout}>
+                            로그아웃
                         </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-56 p-2">
-                        <div className="px-2 py-2 mb-1 bg-gray-50 rounded-md">
-                          <p className="text-sm font-bold truncate">{user?.nickname}</p>
-                          <p className="text-xs text-gray-500 truncate">{user?.email}</p>
-                        </div>
-                        <DropdownMenuItem onClick={() => navigate('/mypage')} className="cursor-pointer">
-                          마이페이지
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => navigate('/mypage/orders')} className="cursor-pointer">
-                          구매 내역
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => navigate('/mypage/sales')} className="cursor-pointer">
-                          판매 내역
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600 focus:text-red-700">
-                          로그아웃
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </>
-                ) : (
+                     </div>
+                  ) : (
+                      <>
+                        <Link to="/mypage/wishlist">
+                          <Button variant="ghost" size="icon" className="text-gray-900 hover:bg-gray-100 transition-colors">
+                            <Heart className="h-6 w-6" />
+                          </Button>
+                        </Link>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="text-gray-900 hover:bg-gray-100 transition-colors">
+                              <User className="h-6 w-6" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-56 p-2">
+                            <div className="px-2 py-2 mb-1 bg-gray-50 rounded-md">
+                              <p className="text-sm font-bold truncate">{user?.nickname}</p>
+                              <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+                            </div>
+                            <DropdownMenuItem onClick={() => navigate('/mypage')} className="cursor-pointer">
+                              마이페이지
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => navigate('/mypage/orders')} className="cursor-pointer">
+                              구매 내역
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => navigate('/mypage/sales')} className="cursor-pointer">
+                              판매 내역
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600 focus:text-red-700">
+                              로그아웃
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </>
+                  )}
+                </>
+              ) : (
                   <div className="flex items-center gap-3 text-sm font-medium text-gray-500">
                     <Link to="/auth/login" className="hover:text-black transition-colors">로그인</Link>
                     <Link to="/auth/signup" className="hover:text-black transition-colors">회원가입</Link>

@@ -1,0 +1,4300 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Unbox 프로젝트 API",
+    "description": "Unbox 백엔드 API 명세서입니다.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Generated server url"
+    }
+  ],
+  "security": [
+    {
+      "bearer-key": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "관리자 사용자",
+      "description": "관리자 사용자 조회 / 수정 / 삭제 API"
+    },
+    {
+      "name": "관리자 인증",
+      "description": "관리자 회원가입 / 로그인 / 로그아웃 / 토큰 재발급 API"
+    },
+    {
+      "name": "관리자 상품",
+      "description": "관리자 상품 / 옵션 관리 API"
+    },
+    {
+      "name": "주문 관리",
+      "description": "주문 생성, 조회, 취소, 상태 변경 API"
+    },
+    {
+      "name": "⚠️ 테스트 / 부트스트랩",
+      "description": "초기 ROLE_MASTER 계정 생성을 위한 테스트 전용 API (운영 시 반드시 삭제)"
+    },
+    {
+      "name": "관리자 브랜드",
+      "description": "관리자 브랜드 관리 API"
+    },
+    {
+      "name": "관리자 스태프",
+      "description": "관리자(스태프/검수자) 관리 API"
+    },
+    {
+      "name": "사용자 인증",
+      "description": "사용자 회원가입 / 로그인 / 로그아웃 / 토큰 재발급 API"
+    },
+    {
+      "name": "회원 관리",
+      "description": "회원 정보 조회 / 수정 / 탈퇴 API"
+    }
+  ],
+  "paths": {
+    "/api/v1/wishlist": {
+      "get": {
+        "tags": [
+          "wishlist-controller"
+        ],
+        "operationId": "getMyWishlist",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WishlistResponseDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "wishlist-controller"
+        ],
+        "operationId": "addWishlist",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WishlistRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/test/bootstrap/master": {
+      "post": {
+        "tags": [
+          "⚠️ 테스트 / 부트스트랩"
+        ],
+        "summary": "테스트용 마스터 계정 생성",
+        "description": "⚠️ 테스트 환경 전용 API\n\n- ROLE_MASTER 계정을 1회만 생성 가능\n- 이미 존재하면 409 반환\n- role/status는 서버에서 고정 처리\n",
+        "operationId": "createMaster",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateMasterRequest"
+              },
+              "examples": {
+                "마스터 생성 요청 예시": {
+                  "description": "마스터 생성 요청 예시",
+                  "value": {
+                    "email": "master@test.com",
+                    "password": "Test1234!",
+                    "nickname": "master",
+                    "phone": "010-1234-5678"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "마스터 계정 생성 성공",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminSignupResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "이미 ROLE_MASTER 존재",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "example": "이미 ROLE_MASTER 계정이 존재합니다."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reviews": {
+      "get": {
+        "tags": [
+          "review-controller"
+        ],
+        "operationId": "getList",
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "pageable",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Pageable"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageReview"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "review-controller"
+        ],
+        "operationId": "create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/product-requests": {
+      "post": {
+        "tags": [
+          "product-request-controller"
+        ],
+        "operationId": "createProductRequest",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseString"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders": {
+      "get": {
+        "tags": [
+          "주문 관리"
+        ],
+        "summary": "내 주문 목록 조회",
+        "description": "구매자가 자신의 주문 내역을 페이징 조회합니다.",
+        "operationId": "getMyOrders",
+        "parameters": [
+          {
+            "name": "pageable",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Pageable"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePageOrderResponseDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "주문 관리"
+        ],
+        "summary": "주문 생성",
+        "description": "구매자가 상품을 주문합니다.",
+        "operationId": "createOrder",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrderCreateRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseUUID"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/bids/selling": {
+      "post": {
+        "tags": [
+          "selling-bid-controller"
+        ],
+        "operationId": "createSellingBid",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SellingBidRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/signup": {
+      "post": {
+        "tags": [
+          "사용자 인증"
+        ],
+        "summary": "회원가입",
+        "description": "이메일/비밀번호/닉네임/전화번호로 회원가입을 진행합니다.\n```json\n{\n  \"email\": \"test@example.com\",\n  \"password\": \"Password!\",\n  \"nickname\": \"tester\",\n  \"phone\": \"01012345678\"\n}\n```",
+        "operationId": "signup",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserSignupRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "409": {
+            "description": "회원가입 실패(중복 등)",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "example": "이미 존재하는 사용자입니다."
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "회원가입 성공",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserSignupResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/reissue": {
+      "post": {
+        "tags": [
+          "사용자 인증"
+        ],
+        "summary": "토큰 재발급",
+        "description": "AccessToken 만료 시 RefreshToken으로 새로운 토큰을 발급합니다.\n\n✅ 요청\n- refresh 쿠키(HttpOnly)가 자동 전송되는 방식 권장\n\n✅ 응답\n- Authorization 헤더에 새 access token\n- refresh 쿠키 갱신\n- 바디에 accessToken/refreshToken JSON\n\n✅ Swagger 테스트 팁\n- Swagger UI는 쿠키 자동 핸들링이 환경에 따라 안 될 수 있습니다.\n- 같은 브라우저 세션에서 로그인 후, reissue 호출을 하면 refresh 쿠키가 같이 전송되는 경우가 많습니다.\n- 안 되면, 브라우저 개발자도구(Application/Storage → Cookies)에서 refresh 쿠키 존재 여부를 확인하세요.\n",
+        "operationId": "reissue",
+        "responses": {
+          "400": {
+            "description": "refresh token 없음",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "example": "리프레시 토큰을 찾을 수 없음"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "재발급 성공",
+            "headers": {
+              "Authorization": {
+                "description": "Bearer access token",
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserTokenResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "refresh token 만료/유효하지 않음",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "example": "리프레시 토큰이 만료됨"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "tags": [
+          "사용자 인증"
+        ],
+        "summary": "로그아웃",
+        "description": "로그아웃 요청입니다.\n일반적으로 다음 처리를 수행합니다.\n- access token 블랙리스트 처리(선택)\n- Redis에서 refresh token 삭제\n- refresh 쿠키 만료\n\n⚠️ 실제 로그아웃 처리는 프로젝트 구조에 따라 CustomLogoutFilter에서 처리될 수 있습니다.\n",
+        "operationId": "logout",
+        "responses": {
+          "200": {
+            "description": "로그아웃 성공",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "example": "로그아웃 되었습니다."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "토큰이 없거나 유효하지 않음",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "example": "토큰이 없습니다. 로그아웃을 진행할 수 없습니다."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": [
+          "사용자 인증"
+        ],
+        "summary": "일반 로그인 (ID/PW)",
+        "description": "ID/PW 로그인 요청입니다. 실제 인증 및 토큰 발급은 Spring Security LoginFilter + SuccessHandler에서 처리됩니다.\n\n✅ 성공 시\n- 응답 헤더: Authorization: Bearer {accessToken}\n- 응답 쿠키: refresh={refreshToken} (HttpOnly)\n- 응답 바디: accessToken/refreshToken JSON\n\n✅ Swagger 테스트 방법\n1) 이 API를 실행\n2) 응답 헤더의 Authorization 값을 복사\n3) Swagger 우측 상단 Authorize 버튼에 붙여넣고 보호 API 호출\n",
+        "operationId": "login",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserLoginRequestDto"
+              },
+              "examples": {
+                "로그인 요청 예시": {
+                  "description": "로그인 요청 예시",
+                  "value": {
+                    "email": "test@example.com",
+                    "password": "Password!"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "로그인 성공",
+            "headers": {
+              "Authorization": {
+                "description": "Bearer access token",
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserTokenResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "요청 값 누락/형식 오류",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "example": "잘못된 요청입니다."
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "로그인 실패(아이디/비밀번호 불일치)",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "example": "아이디 또는 비밀번호가 일치하지 않습니다."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/products": {
+      "post": {
+        "tags": [
+          "관리자 상품"
+        ],
+        "summary": "상품 등록",
+        "description": "관리자가 상품을 등록합니다. brandId는 RequestBody로 전달합니다.",
+        "operationId": "createProduct",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminProductCreateRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "400": {
+            "description": "요청 값 검증 실패",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAdminProductCreateResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 실패",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAdminProductCreateResponseDto"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "상품 등록 성공",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한 없음",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAdminProductCreateResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "브랜드를 찾을 수 없음",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAdminProductCreateResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/products/{productId}/options": {
+      "post": {
+        "tags": [
+          "관리자 상품"
+        ],
+        "summary": "상품 옵션 등록",
+        "description": "특정 상품에 옵션을 등록합니다.",
+        "operationId": "createProductOption",
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "description": "상품 ID (UUID)",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminProductOptionCreateRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "400": {
+            "description": "요청 값 검증 실패",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAdminProductOptionCreateResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 실패",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAdminProductOptionCreateResponseDto"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "옵션 등록 성공",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한 없음",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAdminProductOptionCreateResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "이미 존재하는 옵션",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAdminProductOptionCreateResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "상품을 찾을 수 없음",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAdminProductOptionCreateResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/brands": {
+      "post": {
+        "tags": [
+          "관리자 브랜드"
+        ],
+        "summary": "브랜드 등록",
+        "description": "관리자가 브랜드를 등록합니다. (MASTER, MANAGER 가능)",
+        "operationId": "createBrand",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminBrandCreateRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "400": {
+            "description": "요청 값 검증 실패 / 이미 존재하는 브랜드"
+          },
+          "403": {
+            "description": "권한 없음"
+          },
+          "401": {
+            "description": "인증 실패"
+          },
+          "200": {
+            "description": "브랜드 등록 성공",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminBrandCreateResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/auth/signup": {
+      "post": {
+        "tags": [
+          "관리자 인증"
+        ],
+        "summary": "관리자 회원가입",
+        "description": "관리자 계정을 회원가입합니다.\n\n✅ 요청 예시\n```json\n{\n  \"email\": \"manager@test.com\",\n  \"password\": \"Test1234!\",\n  \"nickname\": \"manager\",\n  \"phone\": \"010-1234-5678\",\n  \"adminRole\": \"ROLE_MANAGER\"\n}\n```\n",
+        "operationId": "signup_1",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminSignupRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "관리자 회원가입 성공",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminSignupResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "요청 값 누락/형식 오류",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "example": "잘못된 요청입니다."
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "회원가입 실패(중복 등)",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "example": "이미 존재하는 관리자입니다."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/auth/reissue": {
+      "post": {
+        "tags": [
+          "관리자 인증"
+        ],
+        "summary": "관리자 토큰 재발급",
+        "description": "AccessToken 만료 시 RefreshToken으로 새로운 토큰을 발급합니다.\n\n✅ 요청\n- refresh 쿠키(HttpOnly) 자동 전송 방식 권장\n\n✅ 응답\n- Authorization 헤더에 새 access token\n- refresh 쿠키 갱신\n- 바디에 accessToken/refreshToken JSON\n\n✅ Swagger 테스트 팁\n- Swagger UI는 쿠키 자동 핸들링이 환경에 따라 안 될 수 있습니다.\n- 같은 브라우저 세션에서 로그인 후, reissue 호출을 하면 refresh 쿠키가 같이 전송되는 경우가 많습니다.\n- 안 되면, 브라우저 개발자도구(Application/Storage → Cookies)에서 refresh 쿠키 존재 여부를 확인하세요.\n",
+        "operationId": "reissue_1",
+        "responses": {
+          "400": {
+            "description": "refresh token 없음",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "example": "리프레시 토큰을 찾을 수 없음"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "재발급 성공",
+            "headers": {
+              "Authorization": {
+                "description": "Bearer access token",
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminTokenResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "refresh token 만료/유효하지 않음",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "example": "리프레시 토큰이 만료됨"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/auth/logout": {
+      "post": {
+        "tags": [
+          "관리자 인증"
+        ],
+        "summary": "관리자 로그아웃",
+        "description": "관리자 로그아웃 요청입니다.\n일반적으로 다음 처리를 수행합니다.\n- access token 블랙리스트 처리(선택)\n- Redis에서 refresh token 삭제\n- refresh 쿠키 만료\n\n⚠️ 실제 로그아웃 처리는 프로젝트 구조에 따라 JWTFilter / LogoutFilter에서 처리될 수 있습니다.\n",
+        "operationId": "logout_1",
+        "responses": {
+          "200": {
+            "description": "로그아웃 성공",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "example": "로그아웃 되었습니다."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "토큰이 없거나 유효하지 않음",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "example": "토큰이 없습니다. 로그아웃을 진행할 수 없습니다."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/auth/login": {
+      "post": {
+        "tags": [
+          "관리자 인증"
+        ],
+        "summary": "관리자 로그인 (ID/PW)",
+        "description": "관리자 로그인 요청입니다. 실제 인증 및 토큰 발급은 Spring Security LoginFilter + SuccessHandler에서 처리됩니다.\n\n✅ 성공 시\n- 응답 헤더: Authorization: Bearer {accessToken}\n- 응답 쿠키: refresh={refreshToken} (HttpOnly)\n- 응답 바디: accessToken/refreshToken JSON (프로젝트 구현 방식에 따라 다를 수 있음)\n\n✅ Swagger 테스트 방법\n1) 이 API 실행\n2) 응답 헤더 Authorization 값을 복사\n3) Swagger 우측 상단 Authorize 버튼에 붙여넣고 보호 API 호출\n",
+        "operationId": "login_1",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserLoginRequestDto"
+              },
+              "examples": {
+                "마스터 로그인 요청 예시": {
+                  "description": "마스터 로그인 요청 예시",
+                  "value": {
+                    "email": "master@test.com",
+                    "password": "Test1234!"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "400": {
+            "description": "요청 값 누락/형식 오류",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "example": "잘못된 요청입니다."
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "로그인 실패(아이디/비밀번호 불일치)",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "example": "아이디 또는 비밀번호가 일치하지 않습니다."
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "로그인 성공",
+            "headers": {
+              "Authorization": {
+                "description": "Bearer access token",
+                "style": "simple",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "example": "로그인 요청이 처리되었습니다."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/me": {
+      "get": {
+        "tags": [
+          "회원 관리"
+        ],
+        "summary": "내 정보 조회",
+        "description": "현재 로그인된 사용자의 회원 정보를 조회합니다.",
+        "operationId": "getUserMe",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseUserMeResponseDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "회원 관리"
+        ],
+        "summary": "회원 탈퇴",
+        "description": "현재 로그인된 사용자를 탈퇴 처리합니다.",
+        "operationId": "deleteUserMe",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseString"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "회원 관리"
+        ],
+        "summary": "내 정보 수정",
+        "description": "현재 로그인된 사용자의 닉네임과 전화번호를 수정합니다.",
+        "operationId": "updateUserMe",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserMeUpdateRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseUserMeUpdateResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reviews/{reviewId}": {
+      "delete": {
+        "tags": [
+          "review-controller"
+        ],
+        "operationId": "delete",
+        "parameters": [
+          {
+            "name": "reviewId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-User-Id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "review-controller"
+        ],
+        "operationId": "update",
+        "parameters": [
+          {
+            "name": "reviewId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-User-Id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewUpdateDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/orders/{orderId}/tracking": {
+      "patch": {
+        "tags": [
+          "주문 관리"
+        ],
+        "summary": "운송장 등록 (판매자용)",
+        "description": "판매자가 운송장 번호를 등록하고 배송을 시작합니다.",
+        "operationId": "registerTracking",
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrderTrackingRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOrderDetailResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/{orderId}/status": {
+      "patch": {
+        "tags": [
+          "주문 관리"
+        ],
+        "summary": "주문 상태 변경 (관리자용)",
+        "description": "관리자/검수자가 주문 상태를 변경합니다 (예: 검수 합격, 배송 시작).",
+        "operationId": "updateOrderStatus",
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrderStatusUpdateRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOrderDetailResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/{orderId}/confirm": {
+      "patch": {
+        "tags": [
+          "주문 관리"
+        ],
+        "summary": "구매 확정 (구매자용)",
+        "description": "배송 완료된 주문을 구매 확정합니다.",
+        "operationId": "confirmOrder",
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOrderDetailResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/{orderId}/cancel": {
+      "patch": {
+        "tags": [
+          "주문 관리"
+        ],
+        "summary": "주문 취소",
+        "description": "주문을 취소합니다.",
+        "operationId": "cancelOrder",
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOrderDetailResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/bids/selling/{sellingId}/price": {
+      "patch": {
+        "tags": [
+          "selling-bid-controller"
+        ],
+        "operationId": "updatePrice",
+        "parameters": [
+          {
+            "name": "sellingId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SellingBidsPriceUpdateRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/admin/users/{userId}": {
+      "get": {
+        "tags": [
+          "관리자 사용자"
+        ],
+        "summary": "사용자 상세 조회",
+        "description": "관리자가 특정 사용자(userId)의 상세 정보를 조회합니다.",
+        "operationId": "getAdminUserDetail",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "사용자 ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "인증 실패",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAdminUserDetailResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "사용자를 찾을 수 없음",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAdminUserDetailResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한 없음",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAdminUserDetailResponseDto"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "사용자 상세 조회 성공",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "관리자 사용자"
+        ],
+        "summary": "사용자 삭제",
+        "description": "관리자가 특정 사용자(userId)를 삭제합니다.",
+        "operationId": "deleteAdminUser",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "사용자 ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "인증 실패",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "사용자 삭제 성공",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "사용자를 찾을 수 없음",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한 없음",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "관리자 사용자"
+        ],
+        "summary": "사용자 정보 수정",
+        "description": "관리자가 특정 사용자(userId)의 정보를 수정합니다.",
+        "operationId": "updateAdminUser",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "사용자 ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminUserUpdateRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "400": {
+            "description": "요청 값 검증 실패",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAdminUserUpdateResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 실패",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAdminUserUpdateResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "사용자를 찾을 수 없음",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAdminUserUpdateResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한 없음",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAdminUserUpdateResponseDto"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "사용자 정보 수정 성공",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/staff/{adminId}": {
+      "get": {
+        "tags": [
+          "관리자 스태프"
+        ],
+        "summary": "관리자 상세 조회",
+        "description": "특정 관리자 정보를 상세 조회합니다.",
+        "operationId": "getAdminStaffDetail",
+        "parameters": [
+          {
+            "name": "adminId",
+            "in": "path",
+            "description": "관리자 ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "example": 1
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "인증 실패",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAdminStaffDetailResponseDto"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "상세 조회 성공",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한 없음",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAdminStaffDetailResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "관리자를 찾을 수 없음",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAdminStaffDetailResponseDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "관리자 스태프"
+        ],
+        "summary": "관리자 정보 수정",
+        "description": "특정 관리자 정보를 수정합니다.",
+        "operationId": "updateAdminStaff",
+        "parameters": [
+          {
+            "name": "adminId",
+            "in": "path",
+            "description": "관리자 ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "example": 1
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminStaffUpdateRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "400": {
+            "description": "요청 값 검증 실패",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAdminStaffUpdateResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 실패",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAdminStaffUpdateResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한 없음",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAdminStaffUpdateResponseDto"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "수정 성공",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "관리자를 찾을 수 없음",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAdminStaffUpdateResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/staff/me": {
+      "get": {
+        "tags": [
+          "관리자 스태프"
+        ],
+        "summary": "내 관리자 정보 조회",
+        "description": "현재 로그인한 관리자(내 계정) 정보를 조회합니다.",
+        "operationId": "getAdminMe",
+        "responses": {
+          "401": {
+            "description": "인증 실패",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAdminMeResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한 없음",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAdminMeResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "관리자를 찾을 수 없음",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAdminMeResponseDto"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "내 정보 조회 성공",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "관리자 스태프"
+        ],
+        "summary": "내 관리자 정보 수정",
+        "description": "현재 로그인한 관리자(내 계정) 정보를 수정합니다.",
+        "operationId": "updateAdminMe",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminMeUpdateRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "400": {
+            "description": "요청 값 검증 실패",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAdminMeUpdateResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 실패",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAdminMeUpdateResponseDto"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "내 정보 수정 성공",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한 없음",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAdminMeUpdateResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "관리자를 찾을 수 없음",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAdminMeUpdateResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/products": {
+      "get": {
+        "tags": [
+          "product-controller"
+        ],
+        "operationId": "getProducts",
+        "parameters": [
+          {
+            "name": "keyword",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "brandName",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "SHOES"
+              ]
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Zero-based page index (0..N)",
+            "required": false,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "The size of the page to be returned",
+            "required": false,
+            "schema": {
+              "minimum": 1,
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": [
+                "id,ASC"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePageProductResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/products/{productId}": {
+      "get": {
+        "tags": [
+          "product-controller"
+        ],
+        "operationId": "getProductById",
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseProductResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/products/{productId}/lowest-price": {
+      "get": {
+        "tags": [
+          "product-controller"
+        ],
+        "operationId": "getProductLowestPrice",
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseListProductSizePriceResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/{orderId}": {
+      "get": {
+        "tags": [
+          "주문 관리"
+        ],
+        "summary": "주문 상세 조회",
+        "description": "주문의 상세 정보(배송지, 옵션 등)를 조회합니다.",
+        "operationId": "getOrderDetail",
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOrderDetailResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/bids/selling/{sellingId}": {
+      "get": {
+        "tags": [
+          "selling-bid-controller"
+        ],
+        "operationId": "getSellingBidDetail",
+        "parameters": [
+          {
+            "name": "sellingId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SellingBidResponseDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "selling-bid-controller"
+        ],
+        "operationId": "cancelSellingBid",
+        "parameters": [
+          {
+            "name": "sellingId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/bids/selling/my": {
+      "get": {
+        "tags": [
+          "selling-bid-controller"
+        ],
+        "operationId": "getMySellingBids",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Zero-based page index (0..N)",
+            "required": false,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "The size of the page to be returned",
+            "required": false,
+            "schema": {
+              "minimum": 1,
+              "type": "integer",
+              "default": 3
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": [
+                "createdAt,DESC"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SliceSellingBidResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/users": {
+      "get": {
+        "tags": [
+          "관리자 사용자"
+        ],
+        "summary": "사용자 목록 조회",
+        "description": "관리자가 사용자 목록을 페이징하여 조회합니다.",
+        "operationId": "getAdminUserPage",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "페이지 번호 (0부터 시작)",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "example": 0
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "페이지 크기",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "example": 10
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "인증 실패",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePageAdminUserListResponseDto"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "사용자 목록 조회 성공",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한 없음",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePageAdminUserListResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청 파라미터",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePageAdminUserListResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/staff": {
+      "get": {
+        "tags": [
+          "관리자 스태프"
+        ],
+        "summary": "관리자 목록 조회(매니저 + 검수자)",
+        "description": "관리자(매니저 + 검수자) 계정을 페이지 단위로 조회합니다.",
+        "operationId": "getAdminStaffPage",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "페이지 번호(0부터 시작)",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "example": 0
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "페이지 크기",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "example": 10
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "요청 값 검증 실패",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePageAdminStaffListResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 실패",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePageAdminStaffListResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한 없음",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePageAdminStaffListResponseDto"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "목록 조회 성공",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/staff/managers": {
+      "get": {
+        "tags": [
+          "관리자 스태프"
+        ],
+        "summary": "관리자 목록 조회(매니저만)",
+        "description": "관리자(매니저) 계정만 페이지 단위로 조회합니다.",
+        "operationId": "getAdminManagerPage",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "페이지 번호(0부터 시작)",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "example": 0
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "페이지 크기",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "example": 10
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "요청 값 검증 실패",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePageAdminStaffListResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 실패",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePageAdminStaffListResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한 없음",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePageAdminStaffListResponseDto"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "목록 조회 성공",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/staff/inspectors": {
+      "get": {
+        "tags": [
+          "관리자 스태프"
+        ],
+        "summary": "관리자 목록 조회(검수자만)",
+        "description": "관리자(검수자) 계정만 페이지 단위로 조회합니다.",
+        "operationId": "getAdminInspectorPage",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "페이지 번호(0부터 시작)",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "example": 0
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "페이지 크기",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "example": 10
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "요청 값 검증 실패",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePageAdminStaffListResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 실패",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePageAdminStaffListResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한 없음",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePageAdminStaffListResponseDto"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "목록 조회 성공",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/wishlist/{wishlistId}": {
+      "delete": {
+        "tags": [
+          "wishlist-controller"
+        ],
+        "operationId": "removeWishlist",
+        "parameters": [
+          {
+            "name": "wishlistId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/admin/products/{productId}": {
+      "delete": {
+        "tags": [
+          "관리자 상품"
+        ],
+        "summary": "상품 삭제",
+        "description": "관리자가 상품을 삭제합니다.",
+        "operationId": "deleteProduct",
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "description": "상품 ID (UUID)",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "인증 실패",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한 없음",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "상품을 찾을 수 없음",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "상품 삭제 성공",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/products/{productId}/options/{optionId}": {
+      "delete": {
+        "tags": [
+          "관리자 상품"
+        ],
+        "summary": "상품 옵션 삭제",
+        "description": "특정 상품의 옵션을 삭제합니다.",
+        "operationId": "deleteProductOption",
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "description": "상품 ID (UUID)",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "optionId",
+            "in": "path",
+            "description": "옵션 ID (UUID)",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "인증 실패",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한 없음",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "옵션을 찾을 수 없음",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "옵션 삭제 성공",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "해당 상품에 속하지 않은 옵션",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/brands/{brandId}": {
+      "delete": {
+        "tags": [
+          "관리자 브랜드"
+        ],
+        "summary": "브랜드 삭제",
+        "description": "관리자가 브랜드를 삭제합니다. (MASTER, MANAGER 가능)",
+        "operationId": "deleteBrand",
+        "parameters": [
+          {
+            "name": "brandId",
+            "in": "path",
+            "description": "브랜드 ID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "e7b7a8f9-1b2c-4d5e-8f90-123456789abc"
+          }
+        ],
+        "responses": {
+          "403": {
+            "description": "권한 없음"
+          },
+          "404": {
+            "description": "브랜드를 찾을 수 없음"
+          },
+          "401": {
+            "description": "인증 실패"
+          },
+          "200": {
+            "description": "브랜드 삭제 성공",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "WishlistRequestDTO": {
+        "type": "object",
+        "properties": {
+          "optionId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "CreateMasterRequest": {
+        "required": [
+          "email",
+          "nickname",
+          "password",
+          "phone"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "pattern": "^[a-zA-Z0-9!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.\u003C\u003E\\/?]{8,15}$",
+            "type": "string"
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          }
+        }
+      },
+      "AdminSignupResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "email": {
+            "type": "string"
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "adminRole": {
+            "type": "string",
+            "enum": [
+              "ROLE_MASTER",
+              "ROLE_MANAGER",
+              "ROLE_INSPECTOR"
+            ]
+          }
+        }
+      },
+      "ReviewRequestDto": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "orderId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "content": {
+            "type": "string"
+          },
+          "rating": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "imageUrl": {
+            "type": "string"
+          }
+        }
+      },
+      "ProductRequestDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "brandName": {
+            "type": "string"
+          }
+        }
+      },
+      "ApiResponseString": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "string"
+          }
+        }
+      },
+      "OrderCreateRequestDto": {
+        "required": [
+          "receiverAddress",
+          "receiverName",
+          "receiverPhone",
+          "receiverZipCode",
+          "sellingBidId"
+        ],
+        "type": "object",
+        "properties": {
+          "sellingBidId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "receiverName": {
+            "type": "string"
+          },
+          "receiverPhone": {
+            "type": "string"
+          },
+          "receiverAddress": {
+            "type": "string"
+          },
+          "receiverZipCode": {
+            "type": "string"
+          }
+        }
+      },
+      "ApiResponseUUID": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "SellingBidRequestDto": {
+        "required": [
+          "optionId",
+          "price",
+          "userId"
+        ],
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "optionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "price": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "UserSignupRequestDto": {
+        "required": [
+          "email",
+          "nickname",
+          "password",
+          "phone"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "pattern": "^[a-zA-Z0-9!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.\u003C\u003E\\/?]{8,15}$",
+            "type": "string"
+          },
+          "nickname": {
+            "pattern": "^[a-z0-9]{4,10}$",
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          }
+        },
+        "description": "회원가입 요청 DTO"
+      },
+      "UserSignupResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "email": {
+            "type": "string"
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "adminRole": {
+            "type": "string",
+            "enum": [
+              "ROLE_MASTER",
+              "ROLE_MANAGER",
+              "ROLE_INSPECTOR"
+            ]
+          }
+        }
+      },
+      "UserTokenResponseDto": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "refreshToken": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          }
+        }
+      },
+      "UserLoginRequestDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "AdminProductCreateRequestDto": {
+        "required": [
+          "brandId",
+          "category",
+          "imageUrl",
+          "modelNumber",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "brandId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "modelNumber": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "SHOES"
+            ]
+          },
+          "imageUrl": {
+            "type": "string"
+          }
+        }
+      },
+      "ApiResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object"
+          }
+        }
+      },
+      "AdminProductCreateResponseDto": {
+        "type": "object",
+        "properties": {
+          "brandId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "modelNumber": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "SHOES"
+            ]
+          },
+          "imageUrl": {
+            "type": "string"
+          }
+        }
+      },
+      "ApiResponseAdminProductCreateResponseDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/AdminProductCreateResponseDto"
+          }
+        }
+      },
+      "AdminProductOptionCreateRequestDto": {
+        "required": [
+          "option"
+        ],
+        "type": "object",
+        "properties": {
+          "option": {
+            "type": "string"
+          }
+        }
+      },
+      "AdminProductOptionCreateResponseDto": {
+        "type": "object",
+        "properties": {
+          "optionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "productId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "option": {
+            "type": "string"
+          }
+        }
+      },
+      "ApiResponseAdminProductOptionCreateResponseDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/AdminProductOptionCreateResponseDto"
+          }
+        }
+      },
+      "AdminBrandCreateRequestDto": {
+        "required": [
+          "logoUrl",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "logoUrl": {
+            "pattern": "^(http|https)://.*$",
+            "type": "string"
+          }
+        }
+      },
+      "AdminBrandCreateResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "logoUrl": {
+            "type": "string"
+          }
+        }
+      },
+      "AdminSignupRequestDto": {
+        "required": [
+          "adminRole",
+          "email",
+          "nickname",
+          "password",
+          "phone"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "pattern": "^[a-zA-Z0-9!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.\u003C\u003E\\/?]{8,15}$",
+            "type": "string"
+          },
+          "nickname": {
+            "pattern": "^[a-z0-9]{4,10}$",
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "adminRole": {
+            "type": "string",
+            "enum": [
+              "ROLE_MASTER",
+              "ROLE_MANAGER",
+              "ROLE_INSPECTOR"
+            ]
+          }
+        },
+        "description": "관리자 회원가입 요청 DTO"
+      },
+      "AdminTokenResponseDto": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "refreshToken": {
+            "type": "string"
+          }
+        }
+      },
+      "UserMeUpdateRequestDto": {
+        "required": [
+          "nickname",
+          "phone"
+        ],
+        "type": "object",
+        "properties": {
+          "nickname": {
+            "pattern": "^[a-z0-9]{4,10}$",
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          }
+        },
+        "description": "수정할 회원 정보"
+      },
+      "ApiResponseUserMeUpdateResponseDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/UserMeUpdateResponseDto"
+          }
+        }
+      },
+      "UserMeUpdateResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "email": {
+            "type": "string"
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          }
+        }
+      },
+      "ReviewUpdateDto": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string"
+          },
+          "rating": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "imageUrl": {
+            "type": "string"
+          }
+        }
+      },
+      "OrderTrackingRequestDto": {
+        "required": [
+          "trackingNumber"
+        ],
+        "type": "object",
+        "properties": {
+          "trackingNumber": {
+            "type": "string"
+          }
+        }
+      },
+      "ApiResponseOrderDetailResponseDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/OrderDetailResponseDto"
+          }
+        }
+      },
+      "OrderDetailResponseDto": {
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "price": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING_SHIPMENT",
+              "SHIPPED_TO_CENTER",
+              "ARRIVED_AT_CENTER",
+              "IN_INSPECTION",
+              "INSPECTION_PASSED",
+              "INSPECTION_FAILED",
+              "SHIPPED_TO_BUYER",
+              "DELIVERED",
+              "COMPLETED",
+              "CANCELLED"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "cancelledAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "receiverName": {
+            "type": "string"
+          },
+          "receiverPhone": {
+            "type": "string"
+          },
+          "receiverAddress": {
+            "type": "string"
+          },
+          "receiverZipCode": {
+            "type": "string"
+          },
+          "trackingNumber": {
+            "type": "string"
+          },
+          "productOption": {
+            "$ref": "#/components/schemas/ProductOptionInfo"
+          },
+          "product": {
+            "$ref": "#/components/schemas/ProductInfo"
+          }
+        }
+      },
+      "ProductInfo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "brandName": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "modelNumber": {
+            "type": "string"
+          },
+          "imageUrl": {
+            "type": "string"
+          }
+        }
+      },
+      "ProductOptionInfo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "size": {
+            "type": "string"
+          }
+        }
+      },
+      "OrderStatusUpdateRequestDto": {
+        "required": [
+          "status"
+        ],
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING_SHIPMENT",
+              "SHIPPED_TO_CENTER",
+              "ARRIVED_AT_CENTER",
+              "IN_INSPECTION",
+              "INSPECTION_PASSED",
+              "INSPECTION_FAILED",
+              "SHIPPED_TO_BUYER",
+              "DELIVERED",
+              "COMPLETED",
+              "CANCELLED"
+            ]
+          },
+          "trackingNumber": {
+            "type": "string"
+          }
+        }
+      },
+      "SellingBidsPriceUpdateRequestDto": {
+        "required": [
+          "newPrice"
+        ],
+        "type": "object",
+        "properties": {
+          "newPrice": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "AdminUserUpdateRequestDto": {
+        "required": [
+          "nickname",
+          "phone"
+        ],
+        "type": "object",
+        "properties": {
+          "nickname": {
+            "pattern": "^[a-z0-9]{4,10}$",
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          }
+        }
+      },
+      "AdminUserUpdateResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "email": {
+            "type": "string"
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          }
+        }
+      },
+      "ApiResponseAdminUserUpdateResponseDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/AdminUserUpdateResponseDto"
+          }
+        }
+      },
+      "AdminStaffUpdateRequestDto": {
+        "required": [
+          "nickname",
+          "phone"
+        ],
+        "type": "object",
+        "properties": {
+          "nickname": {
+            "pattern": "^[a-z0-9]{4,10}$",
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          }
+        }
+      },
+      "AdminStaffUpdateResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "email": {
+            "type": "string"
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "adminRole": {
+            "type": "string",
+            "enum": [
+              "ROLE_MASTER",
+              "ROLE_MANAGER",
+              "ROLE_INSPECTOR"
+            ]
+          },
+          "adminStatus": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "INACTIVE"
+            ]
+          }
+        }
+      },
+      "ApiResponseAdminStaffUpdateResponseDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/AdminStaffUpdateResponseDto"
+          }
+        }
+      },
+      "AdminMeUpdateRequestDto": {
+        "required": [
+          "nickname",
+          "phone"
+        ],
+        "type": "object",
+        "properties": {
+          "nickname": {
+            "pattern": "^[a-z0-9]{4,10}$",
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          }
+        }
+      },
+      "AdminMeUpdateResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "email": {
+            "type": "string"
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "adminRole": {
+            "type": "string",
+            "enum": [
+              "ROLE_MASTER",
+              "ROLE_MANAGER",
+              "ROLE_INSPECTOR"
+            ]
+          }
+        }
+      },
+      "ApiResponseAdminMeUpdateResponseDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/AdminMeUpdateResponseDto"
+          }
+        }
+      },
+      "WishlistResponseDTO": {
+        "type": "object",
+        "properties": {
+          "wishlistId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "productId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "productName": {
+            "type": "string"
+          },
+          "optionName": {
+            "type": "string"
+          },
+          "imageUrl": {
+            "type": "string"
+          }
+        }
+      },
+      "ApiResponseUserMeResponseDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/UserMeResponseDto"
+          }
+        }
+      },
+      "UserMeResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "email": {
+            "type": "string"
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          }
+        }
+      },
+      "Pageable": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "minimum": 0,
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32"
+          },
+          "sort": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "PageReview": {
+        "type": "object",
+        "properties": {
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageable": {
+            "$ref": "#/components/schemas/PageableObject"
+          },
+          "sort": {
+            "$ref": "#/components/schemas/SortObject"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Review"
+            }
+          },
+          "number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "numberOfElements": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "first": {
+            "type": "boolean"
+          },
+          "last": {
+            "type": "boolean"
+          },
+          "empty": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PageableObject": {
+        "type": "object",
+        "properties": {
+          "paged": {
+            "type": "boolean"
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sort": {
+            "$ref": "#/components/schemas/SortObject"
+          },
+          "offset": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "unpaged": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Review": {
+        "type": "object",
+        "properties": {
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedBy": {
+            "type": "string"
+          },
+          "deletedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deletedBy": {
+            "type": "string"
+          },
+          "reviewId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "orderId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "productId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "buyerId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "content": {
+            "type": "string"
+          },
+          "rating": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "imageUrl": {
+            "type": "string"
+          }
+        }
+      },
+      "SortObject": {
+        "type": "object",
+        "properties": {
+          "sorted": {
+            "type": "boolean"
+          },
+          "empty": {
+            "type": "boolean"
+          },
+          "unsorted": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ApiResponsePageProductResponseDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PageProductResponseDto"
+          }
+        }
+      },
+      "BrandDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "PageProductResponseDto": {
+        "type": "object",
+        "properties": {
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageable": {
+            "$ref": "#/components/schemas/PageableObject"
+          },
+          "sort": {
+            "$ref": "#/components/schemas/SortObject"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductResponseDto"
+            }
+          },
+          "number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "numberOfElements": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "first": {
+            "type": "boolean"
+          },
+          "last": {
+            "type": "boolean"
+          },
+          "empty": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ProductResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "brand": {
+            "$ref": "#/components/schemas/BrandDto"
+          },
+          "name": {
+            "type": "string"
+          },
+          "modelNumber": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "SHOES"
+            ]
+          },
+          "imageUrl": {
+            "type": "string"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ApiResponseProductResponseDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ProductResponseDto"
+          }
+        }
+      },
+      "ApiResponseListProductSizePriceResponseDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductSizePriceResponseDto"
+            }
+          }
+        }
+      },
+      "ProductSizePriceResponseDto": {
+        "type": "object",
+        "properties": {
+          "size": {
+            "type": "string"
+          },
+          "price": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ApiResponsePageOrderResponseDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PageOrderResponseDto"
+          }
+        }
+      },
+      "OrderResponseDto": {
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "price": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING_SHIPMENT",
+              "SHIPPED_TO_CENTER",
+              "ARRIVED_AT_CENTER",
+              "IN_INSPECTION",
+              "INSPECTION_PASSED",
+              "INSPECTION_FAILED",
+              "SHIPPED_TO_BUYER",
+              "DELIVERED",
+              "COMPLETED",
+              "CANCELLED"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "brandName": {
+            "type": "string"
+          },
+          "productName": {
+            "type": "string"
+          },
+          "size": {
+            "type": "string"
+          },
+          "imageUrl": {
+            "type": "string"
+          }
+        }
+      },
+      "PageOrderResponseDto": {
+        "type": "object",
+        "properties": {
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageable": {
+            "$ref": "#/components/schemas/PageableObject"
+          },
+          "sort": {
+            "$ref": "#/components/schemas/SortObject"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderResponseDto"
+            }
+          },
+          "number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "numberOfElements": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "first": {
+            "type": "boolean"
+          },
+          "last": {
+            "type": "boolean"
+          },
+          "empty": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SellingBidResponseDto": {
+        "type": "object",
+        "properties": {
+          "sellingId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "LIVE",
+              "HOLD",
+              "MATCHED",
+              "CANCELLED"
+            ]
+          },
+          "price": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "deadline": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "product": {
+            "$ref": "#/components/schemas/ProductInfo"
+          },
+          "size": {
+            "type": "string"
+          }
+        }
+      },
+      "SliceSellingBidResponseDto": {
+        "type": "object",
+        "properties": {
+          "pageable": {
+            "$ref": "#/components/schemas/PageableObject"
+          },
+          "sort": {
+            "$ref": "#/components/schemas/SortObject"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SellingBidResponseDto"
+            }
+          },
+          "number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "numberOfElements": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "first": {
+            "type": "boolean"
+          },
+          "last": {
+            "type": "boolean"
+          },
+          "empty": {
+            "type": "boolean"
+          }
+        }
+      },
+      "AdminUserListResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "email": {
+            "type": "string"
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          }
+        }
+      },
+      "ApiResponsePageAdminUserListResponseDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PageAdminUserListResponseDto"
+          }
+        }
+      },
+      "PageAdminUserListResponseDto": {
+        "type": "object",
+        "properties": {
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageable": {
+            "$ref": "#/components/schemas/PageableObject"
+          },
+          "sort": {
+            "$ref": "#/components/schemas/SortObject"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminUserListResponseDto"
+            }
+          },
+          "number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "numberOfElements": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "first": {
+            "type": "boolean"
+          },
+          "last": {
+            "type": "boolean"
+          },
+          "empty": {
+            "type": "boolean"
+          }
+        }
+      },
+      "AdminUserDetailResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "email": {
+            "type": "string"
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          }
+        }
+      },
+      "ApiResponseAdminUserDetailResponseDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/AdminUserDetailResponseDto"
+          }
+        }
+      },
+      "AdminStaffListResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "email": {
+            "type": "string"
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "adminRole": {
+            "type": "string",
+            "enum": [
+              "ROLE_MASTER",
+              "ROLE_MANAGER",
+              "ROLE_INSPECTOR"
+            ]
+          },
+          "adminStatus": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "INACTIVE"
+            ]
+          }
+        }
+      },
+      "ApiResponsePageAdminStaffListResponseDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PageAdminStaffListResponseDto"
+          }
+        }
+      },
+      "PageAdminStaffListResponseDto": {
+        "type": "object",
+        "properties": {
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageable": {
+            "$ref": "#/components/schemas/PageableObject"
+          },
+          "sort": {
+            "$ref": "#/components/schemas/SortObject"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminStaffListResponseDto"
+            }
+          },
+          "number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "numberOfElements": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "first": {
+            "type": "boolean"
+          },
+          "last": {
+            "type": "boolean"
+          },
+          "empty": {
+            "type": "boolean"
+          }
+        }
+      },
+      "AdminStaffDetailResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "email": {
+            "type": "string"
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "adminRole": {
+            "type": "string",
+            "enum": [
+              "ROLE_MASTER",
+              "ROLE_MANAGER",
+              "ROLE_INSPECTOR"
+            ]
+          },
+          "adminStatus": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "INACTIVE"
+            ]
+          }
+        }
+      },
+      "ApiResponseAdminStaffDetailResponseDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/AdminStaffDetailResponseDto"
+          }
+        }
+      },
+      "AdminMeResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "email": {
+            "type": "string"
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "adminRole": {
+            "type": "string",
+            "enum": [
+              "ROLE_MASTER",
+              "ROLE_MANAGER",
+              "ROLE_INSPECTOR"
+            ]
+          },
+          "adminStatus": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "INACTIVE"
+            ]
+          }
+        }
+      },
+      "ApiResponseAdminMeResponseDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/AdminMeResponseDto"
+          }
+        }
+      },
+      "ApiResponseVoid": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearer-key": {
+        "type": "http",
+        "name": "Authorization",
+        "in": "header",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}
