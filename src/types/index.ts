@@ -43,8 +43,7 @@ export interface Pageable {
 export interface Brand {
   id: string;
   name: string;
-  nameKo: string;
-  imageUrl?: string;
+  logoUrl: string;
 }
 
 export interface ProductOption {

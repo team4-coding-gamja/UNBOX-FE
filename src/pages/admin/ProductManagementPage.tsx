@@ -291,7 +291,7 @@ export function ProductManagementPage() {
                   </TableCell>
                   <TableCell>
                     <Badge variant="secondary" className="bg-gray-100 text-gray-700 hover:bg-gray-200">
-                        {product.brand?.nameKo}
+                        {product.brand?.name}
                     </Badge>
                   </TableCell>
                   <TableCell className="font-mono text-sm text-gray-600">{product.modelNumber}</TableCell>
@@ -366,7 +366,7 @@ export function ProductManagementPage() {
                 <SelectContent>
                   {brands.map((brand) => (
                     <SelectItem key={brand.id} value={brand.id}>
-                      {brand.nameKo}
+                      {brand.name}
                     </SelectItem>
                   ))}
                 </SelectContent>

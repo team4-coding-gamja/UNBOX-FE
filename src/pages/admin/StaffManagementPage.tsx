@@ -192,24 +192,6 @@ export function StaffManagementPage() {
     }
   };
 
-  const handleDelete = async () => {
-    if (!selectedStaff) return;
-
-    setIsSubmitting(true);
-    try {
-      await adminStaffApi.delete(selectedStaff.id);
-      toast.success('스태프가 삭제되었습니다');
-      setDeleteDialogOpen(false);
-      setSelectedStaff(null);
-      fetchStaff();
-    } catch (error: any) {
-      const message = error.response?.data?.message || '스태프 삭제에 실패했습니다';
-      toast.error(message);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   const openEditDialog = (member: AdminUser) => {
     setSelectedStaff(member);
     setValueEdit('nickname', member.nickname);
@@ -315,17 +297,6 @@ export function StaffManagementPage() {
                           onClick={() => openEditDialog(member)}
                         >
                           <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full"
-                          onClick={() => {
-                            setSelectedStaff(member);
-                            setDeleteDialogOpen(true);
-                          }}
-                        >
-                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </TableCell>
@@ -507,29 +478,6 @@ export function StaffManagementPage() {
           </form>
         </DialogContent>
       </Dialog>
-
-      {/* Delete Dialog */}
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>스태프 삭제</AlertDialogTitle>
-            <AlertDialogDescription>
-              <span className="font-semibold text-black">{selectedStaff?.nickname}</span>님을 삭제하시겠습니까?
-              <br/>삭제된 계정은 복구할 수 없습니다.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>취소</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              disabled={isSubmitting}
-              className="bg-red-600 text-white hover:bg-red-700"
-            >
-              {isSubmitting ? '삭제 중...' : '삭제'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }

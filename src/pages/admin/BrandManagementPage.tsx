@@ -37,8 +37,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
 const brandSchema = z.object({
-  name: z.string().min(1, '영문명을 입력해주세요'),
-  nameKo: z.string().min(1, '한글명을 입력해주세요'),
+  name: z.string().min(1, '브랜드명을 입력해주세요'),
+  logoUrl: z.string().url('올바른 URL 형식을 입력해주세요').min(1, '로고 URL을 입력해주세요'),
 });
 
 type BrandFormData = z.infer<typeof brandSchema>;
@@ -61,30 +61,33 @@ export function BrandManagementPage() {
   });
 
   useEffect(() => {
-    fetchBrands();
+    // API Spec does not define GET /api/admin/brands, so we cannot fetch the list.
+    // fetchBrands(); 
+    setIsLoading(false);
   }, []);
 
   const fetchBrands = async () => {
-    try {
-      const response = await adminBrandsApi.getAll();
-      const data = response.data?.data || response.data || [];
-      setBrands(Array.isArray(data) ? data : []);
-    } catch (error) {
-      toast.error('브랜드 목록을 불러오는데 실패했습니다');
-    } finally {
-      setIsLoading(false);
-    }
+    // API Spec does not define GET /api/admin/brands.
+    // try {
+    //   const response = await adminBrandsApi.getAll();
+    //   const data = response.data?.data || response.data || [];
+    //   setBrands(Array.isArray(data) ? data : []);
+    // } catch (error) {
+    //   toast.error('브랜드 목록을 불러오는데 실패했습니다');
+    // } finally {
+    //   setIsLoading(false);
+    // }
   };
 
   const openCreateDialog = () => {
     setSelectedBrand(null);
-    reset({ name: '', nameKo: '' });
+    reset({ name: '', logoUrl: '' });
     setDialogOpen(true);
   };
 
   const openEditDialog = (brand: Brand) => {
     setSelectedBrand(brand);
-    reset({ name: brand.name, nameKo: brand.nameKo });
+    reset({ name: brand.name, logoUrl: brand.logoUrl });
     setDialogOpen(true);
   };
 
@@ -164,16 +167,24 @@ export function BrandManagementPage() {
           <Table>
             <TableHeader className="bg-gray-50/50">
               <TableRow className="border-gray-100 hover:bg-transparent">
-                <TableHead className="py-4 pl-6 text-xs font-semibold uppercase text-gray-500">Brand Name (KO)</TableHead>
-                <TableHead className="py-4 text-xs font-semibold uppercase text-gray-500">Brand Name (EN)</TableHead>
+                <TableHead className="py-4 pl-6 text-xs font-semibold uppercase text-gray-500 w-[100px]">Logo</TableHead>
+                <TableHead className="py-4 text-xs font-semibold uppercase text-gray-500">Brand Name</TableHead>
                 <TableHead className="w-24"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {brands.map((brand) => (
                 <TableRow key={brand.id} className="border-gray-50 hover:bg-gray-50/50 transition-colors">
-                  <TableCell className="pl-6 py-4 font-semibold text-gray-900">{brand.nameKo}</TableCell>
-                  <TableCell className="text-gray-600 font-medium">{brand.name}</TableCell>
+                  <TableCell className="pl-6 py-4">
+                     <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center overflow-hidden border border-gray-100">
+                      {brand.logoUrl ? (
+                        <img src={brand.logoUrl} alt={brand.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <Tags className="w-5 h-5 text-gray-400" />
+                      )}
+                     </div>
+                  </TableCell>
+                  <TableCell className="font-semibold text-gray-900">{brand.name}</TableCell>
                   <TableCell>
                     <div className="flex gap-1 justify-end pr-4">
                       <Button
@@ -206,10 +217,13 @@ export function BrandManagementPage() {
              <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
                  <Tags className="h-8 w-8 text-gray-400" />
              </div>
-             <h3 className="text-lg font-semibold text-gray-900">등록된 브랜드가 없습니다</h3>
-             <p className="text-gray-500 mt-1 mb-6 max-w-sm">새로운 브랜드를 추가하여 상품을 등록할 수 있습니다.</p>
+             <h3 className="text-lg font-semibold text-gray-900">브랜드 목록을 표시할 수 없습니다</h3>
+             <p className="text-gray-500 mt-1 mb-6 max-w-xl">
+               API 명세서(api-spec.json)에 브랜드 목록 조회(GET) 엔드포인트가 정의되지 않았습니다.<br/>
+               하지만 브랜드 등록(POST)은 가능합니다.
+             </p>
              <Button onClick={openCreateDialog} variant="outline">
-                첫 브랜드 추가하기
+                브랜드 추가하기
              </Button>
           </div>
         )}
@@ -224,19 +238,7 @@ export function BrandManagementPage() {
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="nameKo">한글명</Label>
-              <Input
-                id="nameKo"
-                {...register('nameKo')}
-                placeholder="예: 나이키"
-              />
-              {errors.nameKo && (
-                <p className="text-xs text-destructive">{errors.nameKo.message}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="name">영문명</Label>
+              <Label htmlFor="name">브랜드명</Label>
               <Input
                 id="name"
                 {...register('name')}
@@ -244,6 +246,18 @@ export function BrandManagementPage() {
               />
               {errors.name && (
                 <p className="text-xs text-destructive">{errors.name.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="logoUrl">로고 이미지 URL</Label>
+              <Input
+                id="logoUrl"
+                {...register('logoUrl')}
+                placeholder="https://example.com/logo.png"
+              />
+              {errors.logoUrl && (
+                <p className="text-xs text-destructive">{errors.logoUrl.message}</p>
               )}
             </div>
 
@@ -265,7 +279,7 @@ export function BrandManagementPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>브랜드 삭제</AlertDialogTitle>
             <AlertDialogDescription>
-              <span className="font-semibold text-black">{selectedBrand?.nameKo}</span> 브랜드를 삭제하시겠습니까?
+              <span className="font-semibold text-black">{selectedBrand?.name}</span> 브랜드를 삭제하시겠습니까?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

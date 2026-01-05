@@ -169,7 +169,7 @@ export function ProductDetailPage() {
           {/* Brand & Titles */}
           <div className="mb-6">
              <a href="#" className="font-bold text-black border-b-2 border-black inline-block leading-tight mb-2 hover:opacity-70 transition-opacity">
-               {product.brand?.nameKo || product.brand?.name}
+               {product.brand?.name}
              </a>
              <h1 className="text-3xl font-medium text-black mb-1 leading-tight tracking-tight">{product.nameKo || product.name}</h1>
              {product.name !== product.nameKo && (

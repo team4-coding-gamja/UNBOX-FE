@@ -142,9 +142,9 @@ export const wishlistApi = {
 // Admin APIs
 export const adminBrandsApi = {
   getAll: () => api.get('/api/admin/brands'),
-  create: (data: { name: string; nameKo: string }) =>
+  create: (data: { name: string; logoUrl: string }) =>
     api.post('/api/admin/brands', data),
-  update: (brandId: string, data: { name: string; nameKo: string }) =>
+  update: (brandId: string, data: { name: string; logoUrl: string }) =>
     api.patch(`/api/admin/brands/${brandId}`, data),
   delete: (brandId: string) => api.delete(`/api/admin/brands/${brandId}`),
 };

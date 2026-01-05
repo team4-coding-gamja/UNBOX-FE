@@ -31,7 +31,7 @@ export function ProductCard({ product, isWishlisted, onToggleWishlist }: Product
         <div className="space-y-1">
             {/* Brand */}
             <p className="text-sm font-bold text-black truncate">
-            {product.brand?.nameKo || product.brand?.name}
+            {product.brand?.name}
             </p>
 
             {/* Name */}

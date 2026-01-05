@@ -213,7 +213,6 @@ export function SellPage() {
 
   // Filter lists based on search
   const filteredBrands = brands.filter(b => 
-    (b.nameKo || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
     (b.name || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -264,10 +263,16 @@ export function SellPage() {
                 <button
                   key={brand.id}
                   onClick={() => handleBrandSelect(brand)}
-                  className="flex flex-col items-center justify-center p-6 border border-gray-100 rounded-xl hover:border-black hover:shadow-lg transition-all text-center gap-1 group bg-white"
+                  className="flex flex-col items-center justify-center p-6 border border-gray-100 rounded-xl hover:border-black hover:shadow-lg transition-all text-center gap-2 group bg-white"
                 >
+                  <div className="w-16 h-16 rounded-full overflow-hidden border border-gray-100 mb-2">
+                     {brand.logoUrl ? (
+                         <img src={brand.logoUrl} alt={brand.name} className="w-full h-full object-cover" />
+                     ) : (
+                         <div className="w-full h-full bg-gray-50 flex items-center justify-center text-gray-300 text-xs font-bold">LOGO</div>
+                     )}
+                  </div>
                   <span className="font-bold text-lg group-hover:scale-105 transition-transform">{brand.name}</span>
-                  <span className="text-xs text-gray-400 font-medium">{brand.nameKo}</span>
                 </button>
               ))}
             </div>
