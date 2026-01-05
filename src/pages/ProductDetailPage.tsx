@@ -26,6 +26,7 @@ export function ProductDetailPage() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [selectedOption, setSelectedOption] = useState<ProductOption | null>(null);
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const [wishlistId, setWishlistId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -35,6 +36,27 @@ export function ProductDetailPage() {
       fetchReviews();
     }
   }, [id]);
+
+  useEffect(() => {
+    if (id && isAuthenticated) {
+      checkWishlistStatus();
+    }
+  }, [id, isAuthenticated]);
+
+  const checkWishlistStatus = async () => {
+    try {
+      const response = await wishlistApi.getAll();
+      const list = response.data?.data || response.data || [];
+      const matchingItem = Array.isArray(list) 
+          ? list.find((item: any) => item.productId === id)
+          : null;
+      
+      setIsWishlisted(!!matchingItem);
+      setWishlistId(matchingItem ? matchingItem.wishlistId : null);
+    } catch (error) {
+      console.error('Failed to check wishlist status:', error);
+    }
+  };
 
   const fetchProduct = async () => {
     try {
@@ -76,13 +98,17 @@ export function ProductDetailPage() {
     }
 
     try {
-      if (isWishlisted) {
-        await wishlistApi.remove(id!);
+      if (isWishlisted && wishlistId) {
+        await wishlistApi.remove(wishlistId);
         setIsWishlisted(false);
+        setWishlistId(null);
         toast.success('위시리스트에서 삭제되었습니다');
       } else {
-        await wishlistApi.add(id!);
-        setIsWishlisted(true);
+        // Try to use selected option, or fallback to first option available to satisfy backend requirement
+        const optionId = selectedOption?.id || (options.length > 0 ? options[0].id : undefined);
+        await wishlistApi.add(optionId!);
+        // Refresh to get the new wishlistId
+        await checkWishlistStatus();
         toast.success('위시리스트에 추가되었습니다');
       }
     } catch (error) {

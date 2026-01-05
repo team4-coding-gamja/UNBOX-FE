@@ -135,8 +135,8 @@ export const reviewsApi = {
 // Wishlist API
 export const wishlistApi = {
   getAll: () => api.get('/api/v1/wishlist'),
-  add: (productId: string) => api.post('/api/v1/wishlist', { productId }),
-  remove: (productId: string) => api.delete(`/api/v1/wishlist/${productId}`),
+  add: (optionId: string) => api.post('/api/v1/wishlist', { optionId }),
+  remove: (wishlistId: string) => api.delete(`/api/v1/wishlist/${wishlistId}`),
 };
 
 // Admin APIs

@@ -13,7 +13,8 @@ export function HomePage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
-  const [wishlist, setWishlist] = useState<Set<string>>(new Set());
+  // Map productId -> wishlistId
+  const [wishlist, setWishlist] = useState<Map<string, string>>(new Map());
   const [isLoading, setIsLoading] = useState(true);
   const { isAuthenticated } = useAuth();
 
@@ -43,8 +44,34 @@ export function HomePage() {
     try {
       const params = selectedBrand ? { brandId: selectedBrand } : {};
       const response = await productsApi.getAll(params);
-      const data = response.data?.data?.content || response.data?.content || response.data || [];
-      setProducts(Array.isArray(data) ? data : []);
+      let data = response.data?.data?.content || response.data?.content || response.data || [];
+      data = Array.isArray(data) ? data : [];
+      
+      // Ensure unique products by ID
+      const uniqueData = Array.from(new Map(data.map((item: any) => [item.id, item])).values());
+
+      // Calculate lowest price from options for each product
+      const productsWithPrices = await Promise.all(uniqueData.map(async (product: Product) => {
+          try {
+              const optionsRes = await productsApi.getOptions(product.id);
+              const options = optionsRes.data?.data || optionsRes.data || [];
+              if (Array.isArray(options) && options.length > 0) {
+                  const lowest = options.reduce((min: number, opt: any) => {
+                      if (opt.lowestPrice && (!min || opt.lowestPrice < min)) {
+                          return opt.lowestPrice;
+                      }
+                      return min;
+                  }, 0);
+                  // Use the first option as representative for wishlist
+                  return { ...product, lowestPrice: lowest, representativeOptionId: options[0].id };
+              }
+          } catch (e) {
+              // Ignore option fetch errors, keep original lowestPrice
+          }
+          return product;
+      }));
+
+      setProducts(productsWithPrices);
     } catch (error) {
       console.error('Failed to fetch products:', error);
       setProducts([]);
@@ -56,31 +83,51 @@ export function HomePage() {
   const fetchWishlist = async () => {
     try {
       const response = await wishlistApi.getAll();
-      const items = response.data || [];
-      setWishlist(new Set(items.map((item: any) => item.product?.id || item.productId)));
+      const items = response.data?.data || response.data || [];
+      const newMap = new Map<string, string>();
+      if (Array.isArray(items)) {
+        items.forEach((item: any) => {
+           // item has wishlistId and productId
+           if (item.productId && item.wishlistId) {
+             newMap.set(item.productId, item.wishlistId);
+           }
+        });
+      }
+      setWishlist(newMap);
     } catch (error) {
       console.error('Failed to fetch wishlist:', error);
     }
   };
 
-  const handleToggleWishlist = async (productId: string) => {
+  const handleToggleWishlist = async (productId: string, optionId?: string) => {
     if (!isAuthenticated) {
       toast.error('로그인이 필요합니다');
       return;
     }
 
     try {
-      if (wishlist.has(productId)) {
-        await wishlistApi.remove(productId);
+      const wishlistId = wishlist.get(productId);
+      if (wishlistId) {
+        await wishlistApi.remove(wishlistId);
         setWishlist((prev) => {
-          const next = new Set(prev);
+          const next = new Map(prev);
           next.delete(productId);
           return next;
         });
         toast.success('위시리스트에서 삭제되었습니다');
       } else {
-        await wishlistApi.add(productId);
-        setWishlist((prev) => new Set(prev).add(productId));
+        // Optimistic update
+        setWishlist((prev) => {
+          const next = new Map(prev);
+          next.set(productId, 'temp-id'); 
+          return next;
+        });
+
+        await wishlistApi.add(optionId!);
+        
+        // We need to know the new wishlistId to be able to remove it later.
+        // Since add response might not return it, we refetch.
+        await fetchWishlist();
         toast.success('위시리스트에 추가되었습니다');
       }
     } catch (error) {
@@ -98,11 +145,11 @@ export function HomePage() {
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-black italic tracking-tighter text-black leading-[0.9]">
                 STYLE YOUR<br />
                 <span className="text-gray-400">LIFE</span> WITH<br />
-                UNBOX.
+                UNBOX
               </h1>
               <p className="text-lg md:text-xl text-gray-600 font-medium max-w-lg mx-auto md:mx-0">
-                한정판 스니커즈부터 럭셔리 아이템까지,<br />
-                검증된 정품을 안전하게 거래하세요.
+                한정판 스니커즈부터<br />
+                여러 검증된 상품을 안전하게
               </p>
             </div>
             {/* Visual element */}

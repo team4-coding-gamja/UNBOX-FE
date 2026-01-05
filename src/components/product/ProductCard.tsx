@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 interface ProductCardProps {
   product: Product;
   isWishlisted?: boolean;
-  onToggleWishlist?: (productId: string) => void;
+  onToggleWishlist?: (productId: string, optionId?: string) => void;
 }
 
 export function ProductCard({ product, isWishlisted, onToggleWishlist }: ProductCardProps) {
@@ -31,20 +31,16 @@ export function ProductCard({ product, isWishlisted, onToggleWishlist }: Product
         <div className="space-y-1">
             {/* Brand */}
             <p className="text-sm font-bold text-black truncate">
-            {product.brand?.name}
+            {product.brandName}
             </p>
 
             {/* Name */}
             <h3 className="text-sm text-gray-800 line-clamp-2 leading-tight">
-            {product.nameKo || product.name}
+            {product.name}
             </h3>
 
             {/* English Name (optional, minimal) */}
-            {product.name && product.name !== product.nameKo && (
-                 <p className="text-xs text-gray-400 line-clamp-1 truncate">
-                    {product.name}
-                 </p>
-            )}
+            {/* Removed as nameKo is no longer distinct */}
 
             {/* Price */}
             <div className="pt-2">
@@ -64,7 +60,7 @@ export function ProductCard({ product, isWishlisted, onToggleWishlist }: Product
           className="absolute top-2 right-2 h-8 w-8 hover:bg-transparent"
           onClick={(e) => {
             e.preventDefault();
-            onToggleWishlist(product.id);
+            onToggleWishlist(product.id, product.representativeOptionId);
           }}
         >
           <Heart

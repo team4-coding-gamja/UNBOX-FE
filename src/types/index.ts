@@ -61,6 +61,7 @@ export interface Product {
   brandName?: string;
   category?: string;
   lowestPrice?: number;
+  representativeOptionId?: string;
 }
 
 export interface SellingBid {
