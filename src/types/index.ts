@@ -52,6 +52,7 @@ export interface ProductOption {
   lowestPrice?: number;
   lowestBidId?: string;
   productId?: string;
+  productOptionName: string;
   stockQuantity?: number;
 }
 

@@ -373,7 +373,7 @@ export function SellPage() {
                     : 'border-gray-100 hover:border-black text-black'
                 )}
               >
-                {option.size}
+                {option.productOptionName}
               </button>
             ))}
           </div>

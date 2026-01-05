@@ -186,7 +186,7 @@ export function ProductDetailPage() {
                    variant="outline" 
                    className="w-full justify-between h-14 rounded-xl border-gray-200 text-base font-bold hover:bg-white hover:border-black transition-all"
                  >
-                   <span>{selectedOption ? selectedOption.size : '모든 사이즈'}</span>
+                   <span>{selectedOption ? selectedOption.productOptionName : '모든 사이즈'}</span>
                    <ChevronDown className="h-5 w-5 opacity-50" />
                  </Button>
                </DropdownMenuTrigger>
@@ -198,7 +198,7 @@ export function ProductDetailPage() {
                      className="flex justify-between items-center py-3 px-4 rounded-lg cursor-pointer focus:bg-gray-50"
                    >
                      <span className={cn("font-medium", selectedOption?.id === option.id && "font-bold")}>
-                        {option.size}
+                        {option.productOptionName}
                      </span>
                      {option.lowestPrice ? (
                         <span className="text-sm font-bold text-black">{formatPrice(option.lowestPrice)}원</span>
