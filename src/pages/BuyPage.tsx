@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Check, Lock } from 'lucide-react';
-import { productsApi, ordersApi } from '@/lib/api';
+import { productsApi, ordersApi, paymentApi } from '@/lib/api';
 import { Product, ProductOption } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -120,17 +120,37 @@ export function BuyPage() {
     setIsLoading(true);
 
     try {
-      const response = await ordersApi.create({
+      // 1. Create Order
+      const orderRes = await ordersApi.create({
         sellingBidId,
         ...shipping,
       });
       
-      const newOrderId = response.data?.data || response.data;
-      setOrderId(newOrderId);
+      const orderData = orderRes.data?.data || orderRes.data;
+      const createdOrderId = orderData?.orderId || orderData?.id;
+
+      if (!createdOrderId) {
+          throw new Error('주문 생성에 실패했습니다 (Order ID not returned)');
+      }
+
+      // 2. Payment Ready
+      const readyRes = await paymentApi.ready({ orderId: createdOrderId, method: 'CARD' });
+      const readyData = readyRes.data?.data || readyRes.data;
+      const { paymentId, paymentKey } = readyData;
+
+      if (!paymentId || !paymentKey) {
+          throw new Error('결제 정보 생성에 실패했습니다');
+      }
+
+      // 3. Payment Confirm
+      await paymentApi.confirm({ paymentId, paymentKey });
+      
+      setOrderId(createdOrderId);
       localStorage.removeItem('shippingData');
       setStep('complete');
     } catch (error: any) {
-      const message = error.response?.data?.message || '주문에 실패했습니다';
+      console.error('Payment flow error:', error);
+      const message = error.response?.data?.message || '주문 처리에 실패했습니다';
       toast.error(message);
     } finally {
       setIsLoading(false);

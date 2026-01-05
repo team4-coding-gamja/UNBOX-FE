@@ -139,6 +139,12 @@ export const wishlistApi = {
   remove: (wishlistId: string) => api.delete(`/api/v1/wishlist/${wishlistId}`),
 };
 
+// Payment API
+export const paymentApi = {
+  ready: (data: { orderId: string; method: string }) => api.post('/api/payment/ready', data),
+  confirm: (data: { paymentId: string; paymentKey: string }) => api.post('/api/payment/confirm', data),
+};
+
 // Admin APIs
 export const adminBrandsApi = {
   getAll: () => api.get('/api/products/brands'),

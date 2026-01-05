@@ -142,10 +142,10 @@ export function OrdersPage() {
                     to={`/products/${order.product?.id}`}
                     className="font-medium hover:underline line-clamp-1"
                   >
-                    {order.product?.nameKo || order.product?.name}
+                    {order.product?.name}
                   </Link>
                   <p className="text-sm text-muted-foreground">
-                    {order.productOption?.size} · {formatDate(order.createdAt)}
+                    {order.productOption?.productOptionName} · {formatDate(order.createdAt)}
                   </p>
                   <p className="font-bold mt-1">{formatPrice(order.price)}원</p>
                 </div>
@@ -201,10 +201,10 @@ export function OrdersPage() {
               </div>
               <div>
                 <p className="font-medium text-sm line-clamp-1">
-                  {selectedOrder.product?.nameKo || selectedOrder.product?.name}
+                  {selectedOrder.product?.name}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {selectedOrder.productOption?.size}
+                  {selectedOrder.productOption?.productOptionName}
                 </p>
               </div>
             </div>
