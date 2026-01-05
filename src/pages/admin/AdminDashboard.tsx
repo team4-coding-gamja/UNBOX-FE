@@ -1,6 +1,6 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { ADMIN_ROLE_MAP } from '@/types';
-import { Users, Package, ClipboardCheck, Tags, ChevronRight, BarChart3 } from 'lucide-react';
+import { Users, Package, ClipboardCheck, Tags, ChevronRight, BarChart3, UserCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export function AdminDashboard() {
@@ -14,6 +14,14 @@ export function AdminDashboard() {
       roles: ['ROLE_MASTER'],
       path: '/admin/staff',
       color: 'bg-blue-500/10 text-blue-600'
+    },
+    { 
+      label: '회원 관리', 
+      desc: '일반 사용자 계정을 관리합니다.',
+      icon: UserCircle, 
+      roles: ['ROLE_MASTER', 'ROLE_MANAGER'],
+      path: '/admin/users',
+      color: 'bg-orange-500/10 text-orange-600'
     },
     { 
       label: '브랜드 관리', 

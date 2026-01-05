@@ -192,4 +192,7 @@ export const adminUsersApi = {
   getAll: (params?: { page?: number; size?: number }) =>
     api.get('/api/admin/users', { params }),
   getById: (userId: string) => api.get(`/api/admin/users/${userId}`),
+  update: (userId: number, data: { nickname: string; phone: string }) =>
+    api.patch(`/api/admin/users/${userId}`, data),
+  delete: (userId: number) => api.delete(`/api/admin/users/${userId}`),
 };
